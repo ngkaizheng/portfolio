@@ -1,50 +1,68 @@
 import { useState } from 'react'
 import './App.css'
 
+const resumeHref = '/resume/NgKaiZheng_Resume.pdf'
+
 const themes = [
   { id: 'aurora', label: 'Aurora', caption: 'Soft glow' },
   { id: 'carbon', label: 'Carbon', caption: 'Editorial' },
   { id: 'ember', label: 'Ember', caption: 'Warm pulse' },
 ] as const
 
-const pillars = [
+const experiences = [
   {
-    title: 'Clarity',
-    body: 'Everything is structured for quick scanning: strong hierarchy, tight copy, and a path from first impression to contact.',
+    role: '.NET Developer, Etiqa Insurance and Takaful Sdn Bhd',
+    period: 'Nov 2025 - Present',
+    outcomes: [
+      'Accelerated delivery timelines by 50%, shipping revamp modules in 1 week vs projected 2 weeks.',
+      'Engineered a multi-agent workflow that improved team productivity by 60%.',
+      'Led Micro-frontend migration using Module Federation with zero downtime for unaffected modules.',
+    ],
   },
   {
-    title: 'Craft',
-    body: 'The layout leans cinematic without getting noisy, with layered gradients, glassy surfaces, and animated depth.',
-  },
-  {
-    title: 'Delivery',
-    body: 'Built as a Vite app that stays responsive, lightweight, and easy to deploy to GitHub Pages.',
-  },
-] as const
-
-const highlights = [
-  {
-    eyebrow: 'Story',
-    title: 'Lead with a clear point of view',
-    body: 'A hero section that explains what you do, why it matters, and where someone should click next.',
-  },
-  {
-    eyebrow: 'Signal',
-    title: 'Show work without clutter',
-    body: 'Short, confident cards surface the strongest parts of your background without forcing a long scroll.',
-  },
-  {
-    eyebrow: 'Action',
-    title: 'Make contact obvious',
-    body: 'The footer closes the loop with a direct call to connect and a simple route for GitHub Pages publishing.',
+    role: 'Internship Game Developer, AIO SYNERGY SDN BHD',
+    period: 'June 2024 - Feb 2025',
+    outcomes: [
+      'Built TypeScript game features with reusable and optimized mechanics.',
+      'Implemented Scratch Card backend integration via REST APIs for secure progress tracking.',
+      'Contributed across debugging, testing, and deployment in an Agile team using Git.',
+    ],
   },
 ] as const
 
-const signals = [
-  'React + TypeScript',
-  'Vite-powered build',
-  'Responsive layout',
-  'Custom domain ready',
+const projects = [
+  {
+    eyebrow: 'Cloud-Native Full Stack',
+    title: 'Pet Appointment System',
+    body: 'Built with .NET, React, SQL Server, and Azure/AWS deployment. Implemented JWT + OAuth 2.0 and automated reminders with Quartz.NET.',
+  },
+  {
+    eyebrow: 'AI Engineering',
+    title: 'AI-Powered RAG Chat Demo',
+    body: 'Developed a .NET Web API that uses Azure AI services for embeddings and chat orchestration over a custom knowledge corpus.',
+  },
+  {
+    eyebrow: 'Final Year Project',
+    title: 'Blockchain Multiplayer Game FYP',
+    body: 'Implemented scalable backend services with Azure PlayFab, ThirdWeb smart contracts on Polygon, and Photon Fusion networking.',
+  },
+] as const
+
+const skills = [
+  'C#',
+  'TypeScript',
+  'JavaScript',
+  'SQL',
+  'React',
+  '.NET (Core/8+)',
+  'EF Core',
+  'MediatR (CQRS)',
+  'Micro-frontends (MFE)',
+  'Module Federation',
+  'RAG',
+  'Azure',
+  'AWS',
+  'Docker',
 ] as const
 
 function App() {
@@ -78,79 +96,89 @@ function App() {
 
       <section className="hero" id="top">
         <div className="hero-copy">
-          <p className="eyebrow">React / Vite portfolio</p>
-          <h1>Ng Kaizheng</h1>
+          <p className="eyebrow">Software Engineer</p>
+          <h1>NG KAI ZHENG</h1>
           <p className="lede">
-            A polished single-page portfolio with an editorial feel, flexible mood settings,
-            and a structure that keeps the important stuff impossible to miss.
+            Full-stack engineer focused on modernizing enterprise systems with .NET, React,
+            and AI orchestration, with a strong emphasis on DDD and clean architecture.
           </p>
 
           <div className="hero-actions">
-            <a className="primary-action" href="#work">
-              View the page structure
+            <a className="primary-action" href={resumeHref} download>
+              Download Resume
             </a>
-            <a className="secondary-action" href="#contact">
-              Start a conversation
+            <a className="secondary-action" href="https://github.com/ngkaizheng" target="_blank" rel="noreferrer">
+              View GitHub
             </a>
           </div>
 
-          <ul className="signal-list" aria-label="Build signals">
-            {signals.map((signal) => (
-              <li key={signal}>{signal}</li>
-            ))}
+          <ul className="signal-list" aria-label="Contact details">
+            <li>kaizheng.tech@gmail.com</li>
+            <li>+60 14-6850705</li>
+            <li>Johor, Malaysia</li>
+            <li>
+              <a href="https://github.com/ngkaizheng" target="_blank" rel="noreferrer">
+                github.com/ngkaizheng
+              </a>
+            </li>
           </ul>
         </div>
 
         <aside className="hero-panel" aria-label="Portfolio summary">
           <div className="panel-header">
-            <span className="panel-kicker">Current mood</span>
-            <strong>{themes.find((option) => option.id === theme)?.label}</strong>
+            <span className="panel-kicker">Current role</span>
+            <strong>.NET Developer</strong>
           </div>
 
           <div className="panel-stat">
-            <span>Focus</span>
-            <strong>Clean storytelling, quick navigation, and strong visual rhythm.</strong>
+            <span>Employer</span>
+            <strong>Etiqa Insurance and Takaful Sdn Bhd</strong>
           </div>
 
           <div className="panel-stat">
-            <span>Stack</span>
-            <strong>React, TypeScript, Vite, and deploy-ready static hosting.</strong>
+            <span>Impact</span>
+            <strong>50% faster delivery and 60% team productivity boost through AI workflows.</strong>
           </div>
 
           <div className="panel-stat">
-            <span>Layout</span>
-            <strong>Hero, proof points, highlights, and a direct contact close.</strong>
+            <span>Location</span>
+            <strong>Johor, Malaysia</strong>
           </div>
         </aside>
       </section>
 
       <section className="section-grid" id="work">
         <article className="section-card section-card-wide">
-          <p className="section-label">What this page does</p>
-          <h2>A base layout with room to evolve</h2>
+          <p className="section-label">Experience</p>
+          <h2>Building production systems with measurable outcomes</h2>
           <p>
-            The site is intentionally flexible: keep the core structure, swap in resume content,
-            or use the theme switch to give the same story a different atmosphere.
+            From enterprise modernization to gameplay services, I focus on maintainable architecture,
+            secure integrations, and delivery speed.
           </p>
         </article>
 
-        {pillars.map((pillar) => (
-          <article className="section-card" key={pillar.title}>
-            <p className="section-label">Principle</p>
-            <h3>{pillar.title}</h3>
-            <p>{pillar.body}</p>
+        {experiences.map((experience) => (
+          <article className="section-card" key={experience.role}>
+            <p className="section-label">Role</p>
+            <h3>{experience.role}</h3>
+            <p>{experience.period}</p>
+            <ul className="signal-list" aria-label={`${experience.role} outcomes`}>
+              {experience.outcomes.map((outcome) => (
+                <li key={outcome}>{outcome}</li>
+              ))}
+            </ul>
           </article>
         ))}
       </section>
 
       <section className="highlights">
         <div className="section-heading">
-          <p className="section-label">Highlights</p>
-          <h2>Designed to read like a real portfolio, not a template dump.</h2>
+          <p className="section-label">Projects</p>
+          <h2>Selected work across cloud, AI, and multiplayer systems</h2>
         </div>
 
         <div className="highlight-grid">
-          {highlights.map((item) => (
+          {projects.map((item) => (
             <article className="highlight-card" key={item.title}>
               <p className="highlight-eyebrow">{item.eyebrow}</p>
               <h3>{item.title}</h3>
@@ -162,23 +190,24 @@ function App() {
 
       <section className="contact-card" id="contact">
         <div>
-          <p className="section-label">Contact</p>
-          <h2>Ready for the last mile</h2>
-          <p>
-            Once your real resume details are dropped in, this page is ready to ship to GitHub
-            Pages under your verified domain.
-          </p>
+          <p className="section-label">Skills</p>
+          <h2>Core stack from production and project delivery</h2>
+          <ul className="signal-list" aria-label="Skills stack">
+            {skills.map((skill) => (
+              <li key={skill}>{skill}</li>
+            ))}
+          </ul>
         </div>
 
-        <a className="primary-action contact-action" href="mailto:hello@ngkaizheng.online">
-          hello@ngkaizheng.online
+        <a className="primary-action contact-action" href={resumeHref} download>
+          Download Resume
         </a>
       </section>
 
       <footer className="footer">
-        <span>Ng Kaizheng</span>
-        <span>Built with React + Vite</span>
-        <span>ngkaizheng.online</span>
+        <span>NG KAI ZHENG</span>
+        <span>kaizheng.tech@gmail.com</span>
+        <span>github.com/ngkaizheng</span>
       </footer>
     </main>
   )
