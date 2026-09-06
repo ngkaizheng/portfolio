@@ -1,3 +1,7 @@
+# GitHub Pages deployment workflow
+# Builds the Vite app and deploys the dist artifact to GitHub Pages.
+# Triggered on push to main and manual dispatch.
+
 name: Deploy to GitHub Pages
 
 on:

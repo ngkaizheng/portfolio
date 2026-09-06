@@ -29,9 +29,10 @@ describe('App', () => {
     expect(screen.getAllByText(/Internship Game Developer, AIO SYNERGY SDN BHD/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/June 2024 - Feb 2025/i).length).toBeGreaterThan(0)
 
+    expect(screen.getAllByText(/Connectiqa/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Customer Data Hub \(CDH\)/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Pet Appointment System/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/AI-Powered RAG Chat Demo/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Blockchain Multiplayer Game/i).length).toBeGreaterThan(0)
   })
 
   it('shows core stack skills as chips or cards', () => {
@@ -39,7 +40,16 @@ describe('App', () => {
     expect(screen.getAllByText('C#').length).toBeGreaterThan(0)
     expect(screen.getAllByText('TypeScript').length).toBeGreaterThan(0)
     expect(screen.getAllByText('React').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('.NET (Core/8+)').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Azure').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('.NET 8+').length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Azure/i).length).toBeGreaterThan(0)
+  })
+
+  it('renders education section with degree and CGPA', () => {
+    render(<App />)
+    expect(screen.getAllByText(/Bachelor of Computer Science/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Universiti Teknologi Malaysia/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/4\.0/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Dean's List/i).length).toBeGreaterThan(0)
   })
 })
+

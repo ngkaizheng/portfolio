@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import './App.css'
 
 const resumeHref = '/resume/NgKaiZheng_Resume.pdf'
@@ -15,7 +16,7 @@ const experiences = [
     period: 'Nov 2025 - Present',
     outcomes: [
       'Accelerated delivery timelines by 50%, shipping revamp modules in 1 week vs projected 2 weeks.',
-      'Engineered a multi-agent workflow that improved team productivity by 60%.',
+      'Engineered a multi-agent workflow that improved team productivity by 60% using AI orchestration.',
       'Led Micro-frontend migration using Module Federation with zero downtime for unaffected modules.',
     ],
   },
@@ -32,19 +33,24 @@ const experiences = [
 
 const projects = [
   {
+    eyebrow: 'Product Launch • April 2026',
+    title: 'Connectiqa',
+    body: 'Architecting a full-scale modernization for a late April pre-launch. Focused on modular scalability and seamless user onboarding using React Micro-frontends.',
+  },
+  {
+    eyebrow: 'Enterprise Architecture',
+    title: 'Customer Data Hub (CDH)',
+    body: 'Implemented a single source of truth for identity attributes using Domain-Driven Design (DDD) to isolate Party and HR contexts.',
+  },
+  {
     eyebrow: 'Cloud-Native Full Stack',
     title: 'Pet Appointment System',
-    body: 'Built with .NET, React, SQL Server, and Azure/AWS deployment. Implemented JWT + OAuth 2.0 and automated reminders with Quartz.NET.',
+    body: 'Built a full-stack pet appointment platform with .NET, React, SQL Server, and Clean Architecture. Implemented JWT + OAuth 2.0, CQRS via MediatR, Quartz.NET reminders, and deployed to Azure/AWS.',
   },
   {
     eyebrow: 'AI Engineering',
     title: 'AI-Powered RAG Chat Demo',
     body: 'Developed a .NET Web API that uses Azure AI services for embeddings and chat orchestration over a custom knowledge corpus.',
-  },
-  {
-    eyebrow: 'Final Year Project',
-    title: 'Blockchain Multiplayer Game FYP',
-    body: 'Implemented scalable backend services with Azure PlayFab, ThirdWeb smart contracts on Polygon, and Photon Fusion networking.',
   },
 ] as const
 
@@ -54,16 +60,59 @@ const skills = [
   'JavaScript',
   'SQL',
   'React',
-  '.NET (Core/8+)',
+  '.NET 8+',
   'EF Core',
   'MediatR (CQRS)',
   'Micro-frontends (MFE)',
   'Module Federation',
-  'RAG',
+  'DDD',
+  'Clean Architecture',
   'Azure',
   'AWS',
   'Docker',
+  'RAG (AI)',
+  'AI Agent Orchestration',
+  'JWT / OAuth 2.0',
+  'Tailwind CSS',
+  'Git',
 ] as const
+
+const education = {
+  degree: 'Bachelor of Computer Science (Graphics and Multimedia Software)',
+  institution: 'Universiti Teknologi Malaysia',
+  period: 'Oct 2021 – July 2025',
+  cgpa: '4.0 / 4.0',
+  highlights: ["Dean's List — All Semesters (1-8)"],
+} as const
+
+const sectionReveal = {
+  hidden: { opacity: 0, y: 36, filter: 'blur(8px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: 0.65, ease: 'easeOut' },
+  },
+} as const
+
+const gridReveal = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.11,
+      delayChildren: 0.06,
+    },
+  },
+} as const
+
+const itemReveal = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeOut' },
+  },
+} as const
 
 function App() {
   const [theme, setTheme] = useState<(typeof themes)[number]['id']>('aurora')
@@ -94,13 +143,20 @@ function App() {
         </div>
       </header>
 
-      <section className="hero" id="top">
-        <div className="hero-copy">
+      <motion.section
+        className="hero"
+        id="top"
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.35 }}
+      >
+        <motion.div className="hero-copy" variants={itemReveal}>
           <p className="eyebrow">Software Engineer</p>
           <h1>NG KAI ZHENG</h1>
           <p className="lede">
-            Full-stack engineer focused on modernizing enterprise systems with .NET, React,
-            and AI orchestration, with a strong emphasis on DDD and clean architecture.
+            Full-stack engineer modernizing enterprise systems with .NET, React,
+            and AI orchestration. Specialized in DDD, CQRS, and Micro-frontends.
           </p>
 
           <div className="hero-actions">
@@ -122,9 +178,9 @@ function App() {
               </a>
             </li>
           </ul>
-        </div>
+        </motion.div>
 
-        <aside className="hero-panel" aria-label="Portfolio summary">
+        <motion.aside className="hero-panel" aria-label="Portfolio summary" variants={itemReveal}>
           <div className="panel-header">
             <span className="panel-kicker">Current role</span>
             <strong>.NET Developer</strong>
@@ -132,33 +188,40 @@ function App() {
 
           <div className="panel-stat">
             <span>Employer</span>
-            <strong>Etiqa Insurance and Takaful Sdn Bhd</strong>
+            <strong>Etiqa Insurance</strong>
           </div>
 
           <div className="panel-stat">
-            <span>Impact</span>
-            <strong>50% faster delivery and 60% team productivity boost through AI workflows.</strong>
+            <span>Core Focus</span>
+            <strong>Domain-Driven Design (DDD) & Clean Architecture.</strong>
           </div>
 
           <div className="panel-stat">
-            <span>Location</span>
-            <strong>Johor, Malaysia</strong>
+            <span>Infrastructure</span>
+            <strong>Enterprise-ready workflows via Podman & Azure.</strong>
           </div>
-        </aside>
-      </section>
+        </motion.aside>
+      </motion.section>
 
-      <section className="section-grid" id="work">
-        <article className="section-card section-card-wide">
+      <motion.section
+        className="section-grid"
+        id="work"
+        variants={gridReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <motion.article className="section-card section-card-wide" variants={itemReveal}>
           <p className="section-label">Experience</p>
-          <h2>Building production systems with measurable outcomes</h2>
+          <h2>Scalable production systems with measurable impact</h2>
           <p>
-            From enterprise modernization to gameplay services, I focus on maintainable architecture,
-            secure integrations, and delivery speed.
+            From modernizing insurance modules to building multiplayer game services, I prioritize 
+            architectural integrity and secure, compliant delivery.
           </p>
-        </article>
+        </motion.article>
 
         {experiences.map((experience) => (
-          <article className="section-card" key={experience.role}>
+          <motion.article className="section-card" key={experience.role} variants={itemReveal}>
             <p className="section-label">Role</p>
             <h3>{experience.role}</h3>
             <p>{experience.period}</p>
@@ -167,48 +230,128 @@ function App() {
                 <li key={outcome}>{outcome}</li>
               ))}
             </ul>
-          </article>
+          </motion.article>
         ))}
-      </section>
+      </motion.section>
 
-      <section className="highlights">
-        <div className="section-heading">
-          <p className="section-label">Projects</p>
-          <h2>Selected work across cloud, AI, and multiplayer systems</h2>
-        </div>
+      <motion.section
+        className="highlights"
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <motion.div className="section-heading" variants={itemReveal}>
+          <p className="section-label">Selected Projects</p>
+          <h2>Engineering across cloud, AI, and enterprise domains</h2>
+        </motion.div>
 
-        <div className="highlight-grid">
+        <motion.div className="highlight-grid" variants={gridReveal}>
           {projects.map((item) => (
-            <article className="highlight-card" key={item.title}>
+            <motion.article className="highlight-card" key={item.title} variants={itemReveal}>
               <p className="highlight-eyebrow">{item.eyebrow}</p>
               <h3>{item.title}</h3>
               <p>{item.body}</p>
-            </article>
+            </motion.article>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
-      <section className="contact-card" id="contact">
-        <div>
-          <p className="section-label">Skills</p>
-          <h2>Core stack from production and project delivery</h2>
-          <ul className="signal-list" aria-label="Skills stack">
-            {skills.map((skill) => (
-              <li key={skill}>{skill}</li>
+      <motion.section
+        className="education"
+        id="education"
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <motion.div className="section-heading" variants={itemReveal}>
+          <p className="section-label">Education</p>
+          <h2>Strong academic foundation in computer science</h2>
+        </motion.div>
+
+        <motion.article className="education-card" variants={itemReveal}>
+          <div className="education-header">
+            <div>
+              <h3>{education.degree}</h3>
+              <p className="education-institution">{education.institution}</p>
+              <p className="education-period">{education.period}</p>
+            </div>
+            <div className="education-cgpa">
+              <span className="cgpa-value">{education.cgpa}</span>
+              <span className="cgpa-label">CGPA</span>
+            </div>
+          </div>
+          <ul className="education-highlights">
+            {education.highlights.map((highlight) => (
+              <li key={highlight}>{highlight}</li>
             ))}
+          </ul>
+        </motion.article>
+      </motion.section>
+
+      <motion.section
+        className="highlights"
+        id="skills"
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        <motion.div className="section-heading" variants={itemReveal}>
+          <p className="section-label">Skills</p>
+          <h2>Enterprise stack for modern software delivery</h2>
+        </motion.div>
+        <motion.div className="skills-grid" variants={gridReveal}>
+          {skills.map((skill) => (
+            <motion.span className="skill-chip" key={skill} variants={itemReveal}>
+              {skill}
+            </motion.span>
+          ))}
+        </motion.div>
+      </motion.section>
+
+      <motion.section
+        className="contact-card"
+        id="contact"
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.25 }}
+      >
+        <div>
+          <p className="section-label">Let's connect</p>
+          <h2>Ready to bring measurable impact to your team</h2>
+          <ul className="signal-list" aria-label="Contact channels">
+            <li>
+              <a href="mailto:kaizheng.tech@gmail.com">kaizheng.tech@gmail.com</a>
+            </li>
+            <li>+60 14-6850705</li>
+            <li>Johor, Malaysia</li>
+            <li>
+              <a href="https://github.com/ngkaizheng" target="_blank" rel="noreferrer">
+                github.com/ngkaizheng
+              </a>
+            </li>
           </ul>
         </div>
 
         <a className="primary-action contact-action" href={resumeHref} download>
           Download Resume
         </a>
-      </section>
+      </motion.section>
 
-      <footer className="footer">
+      <motion.footer
+        className="footer"
+        variants={sectionReveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.4 }}
+      >
         <span>NG KAI ZHENG</span>
         <span>kaizheng.tech@gmail.com</span>
         <span>github.com/ngkaizheng</span>
-      </footer>
+      </motion.footer>
     </main>
   )
 }
