@@ -10,12 +10,23 @@ Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at
 
 ## Sections
 
-- **Hero** — Identity, contact, resume download CTA
-- **Experience** — Etiqa Insurance (.NET Developer) and AIO Synergy (Game Developer intern)
-- **Projects** — Connectiqa, Customer Data Hub, Pet Appointment System, AI-Powered RAG Chat Demo
+- **Hero** — Identity, tagline, animated stats (productivity, delivery, auditability, CGPA)
+- **Experience** — Deep-dive cards at Etiqa (problem/solution/result narrative for AI orchestration, workflow engine, MFE migration, ABAC, AI recruitment) + AIO Synergy internship
+- **Projects** — Expandable cards with architecture diagrams (Pet Appointment, RAG Chat, Blockchain Multiplayer)
+- **Skills** — Categorized tags (Languages, Backend, Frontend, AI, Architecture, Cloud)
 - **Education** — UTM Bachelor of Computer Science, CGPA 4.0, Dean's List
-- **Skills** — Enterprise stack chips (.NET 8+, React, TypeScript, Azure, DDD, etc.)
 - **Contact** — Email, phone, location, GitHub, resume download
+
+## Design Notes
+
+- Content-first, single-column layout
+- Dark background (#0f1115) with high-contrast text
+- Grid dot background in hero for subtle visual texture
+- Animated counter stats on hero
+- Reveal-on-scroll via IntersectionObserver
+- Expandable deep-dive cards with Problem → Solution → Result narrative
+- SVG architecture diagrams for each project
+- No external animation libraries (no Framer Motion)
 
 ## Scripts
 
@@ -28,8 +39,8 @@ Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at
 
 - Deployment workflow: `.github/workflows/pages.yml`
 - Custom domain: `ngkaizheng.online` (from `public/CNAME`)
-- Since a custom domain is used, root-relative links are used for public assets.
+- Root-relative links are used for public assets.
 
 ## Tech Stack
 
-- React 19, TypeScript 6, Vite 8, Framer Motion 12
+- React 19, TypeScript 6, Vite 8
