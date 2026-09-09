@@ -9,9 +9,9 @@ interface ParticleFieldProps {
 }
 
 export default function ParticleField({
-  count = 120,
+  count = 400,
   color = '#60a5fa',
-  size = 0.03,
+  size = 0.022,
 }: ParticleFieldProps) {
   const pointsRef = useRef<THREE.Points>(null)
   const linesRef = useRef<THREE.LineSegments>(null)
@@ -19,8 +19,8 @@ export default function ParticleField({
   const mouseTarget = useRef({ x: 0, y: 0 })
   const mouseSpeed = useRef(0)
 
-  const connectionDistance = 2.2
-  const scatterRadius = 3.0
+  const connectionDistance = 1.8
+  const scatterRadius = 2.5
 
   // Particle positions + velocities
   const { positions, basePositions, velocities } = useMemo(() => {
@@ -47,7 +47,7 @@ export default function ParticleField({
 
   // Line segments buffer (max possible connections)
   const lineBuffer = useMemo(() => {
-    const maxLines = count * 6 // each particle can connect to ~5 others
+    const maxLines = count * 8 // each particle connects to ~6 neighbors
     const arr = new Float32Array(maxLines * 2 * 3) // 2 points per line, 3 coords each
     return arr
   }, [count])
