@@ -17,42 +17,70 @@ export default function ParticleField({
   const mouseTarget = useRef({ x: 0, y: 0 })
   const mouseSpeed = useRef(0)
 
-  // Grid params — fill viewport: camera z=5, fov=60 → visible ±6 x ±3.5
-  const cols = 32
-  const rows = 22
+  // Grid params
+  const cols = 34
+  const rows = 24
   const spacing = 0.5
-  const count = cols * rows
   const scatterRadius = 1.8
 
-  // Generate regular grid
-  const { positions, basePositions } = useMemo(() => {
-    const pos = new Float32Array(count * 3)
-    const base = new Float32Array(count * 3)
+  // Diamond boundary (in grid units from center)
+  const diamondRadius = 11.5
 
+  // Generate grid, keep only nodes inside diamond, build neighbor map
+  const { positions, basePositions, activeCount, neighborMap } = useMemo(() => {
+    const pos = new Float32Array(cols * rows * 3)
+    const base = new Float32Array(cols * rows * 3)
+    // Map grid (row, col) → active index, or -1 if filtered out
+    const gridMap: number[][] = Array.from({ length: rows }, () => Array(cols).fill(-1))
     let idx = 0
+
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
+        const gx = col - (cols - 1) / 2
+        const gy = row - (rows - 1) / 2
+        if (Math.abs(gx) + Math.abs(gy) > diamondRadius) continue
+
         const i3 = idx * 3
-        const x = (col - (cols - 1) / 2) * spacing
-        const y = (row - (rows - 1) / 2) * spacing
+        const x = col * spacing - (cols - 1) / 2 * spacing
+        const y = row * spacing - (rows - 1) / 2 * spacing
 
-        // Tiny jitter
-        const jx = (Math.random() - 0.5) * 0.03
-        const jy = (Math.random() - 0.5) * 0.03
-
-        pos[i3] = x + jx
-        pos[i3 + 1] = y + jy
+        pos[i3] = x + (Math.random() - 0.5) * 0.03
+        pos[i3 + 1] = y + (Math.random() - 0.5) * 0.03
         pos[i3 + 2] = (Math.random() - 0.5) * 0.15
 
         base[i3] = pos[i3]
         base[i3 + 1] = pos[i3 + 1]
         base[i3 + 2] = pos[i3 + 2]
 
+        gridMap[row][col] = idx
         idx++
       }
     }
-    return { positions: pos, basePositions: base }
-  }, [count, cols, rows, spacing])
+
+    // Build neighbor pairs (diagonal connections only)
+    const pairs: [number, number][] = []
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const i = gridMap[row][col]
+        if (i === -1) continue
+
+        // Bottom-right
+        if (row + 1 < rows && col + 1 < cols) {
+          const j = gridMap[row + 1][col + 1]
+          if (j !== -1) pairs.push([i, j])
+        }
+        // Bottom-left
+        if (row + 1 < rows && col - 1 >= 0) {
+          const j = gridMap[row + 1][col - 1]
+          if (j !== -1) pairs.push([i, j])
+        }
+      }
+    }
+
+    return { positions: pos, basePositions: base, activeCount: idx, neighborMap: pairs }
+  }, [cols, rows, spacing, diamondRadius])
+
+  const count = activeCount
 
   // Line buffer
   const lineBuffer = useMemo(() => {
@@ -109,18 +137,17 @@ export default function ParticleField({
 
     posAttr.needsUpdate = true
 
-    // Build DIAMOND connections: only diagonals
-    // Each node connects to 4 diagonal neighbors
-    // This creates diamond/rhombus shapes naturally
+    // Build DIAMOND connections using precomputed neighbor pairs
     const lineArr = linesRef.current.geometry.attributes.position.array as Float32Array
     let lineIdx = 0
     const maxVerts = lineBuffer.length / 3
 
-    const addLine = (ai: number, bi: number) => {
+    for (let p = 0; p < neighborMap.length; p++) {
+      const [ai, bi] = neighborMap[p]
       const a3 = ai * 3
       const b3 = bi * 3
       const vi = lineIdx * 6
-      if (vi + 5 >= maxVerts) return
+      if (vi + 5 >= maxVerts) break
       lineArr[vi] = arr[a3]
       lineArr[vi + 1] = arr[a3 + 1]
       lineArr[vi + 2] = arr[a3 + 2]
@@ -128,22 +155,6 @@ export default function ParticleField({
       lineArr[vi + 4] = arr[b3 + 1]
       lineArr[vi + 5] = arr[b3 + 2]
       lineIdx++
-    }
-
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const i = row * cols + col
-
-        // Bottom-right diagonal
-        if (row < rows - 1 && col < cols - 1) {
-          addLine(i, i + cols + 1)
-        }
-
-        // Bottom-left diagonal
-        if (row < rows - 1 && col > 0) {
-          addLine(i, i + cols - 1)
-        }
-      }
     }
 
     linesRef.current.geometry.setDrawRange(0, lineIdx * 2)
