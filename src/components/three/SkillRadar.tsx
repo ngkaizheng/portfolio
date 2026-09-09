@@ -97,23 +97,24 @@ export default function SkillRadar({
   return (
     <group ref={groupRef}>
       {/* Grid lines */}
-      {gridPolygons.map((pts, i) => (
-        <line key={i}>
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              count={pts.length}
-              array={new Float32Array(pts.flatMap(p => [p.x, p.y, p.z]))}
-              itemSize={3}
+      {gridPolygons.map((pts, i) => {
+        const arr = new Float32Array(pts.flatMap(p => [p.x, p.y, p.z]))
+        return (
+          <line key={i}>
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                args={[arr, 3]}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial
+              color={i < 4 ? '#27272a' : '#3b3b3b'}
+              transparent
+              opacity={i < 4 ? 0.6 : 0.4}
             />
-          </bufferGeometry>
-          <lineBasicMaterial
-            color={i < 4 ? '#27272a' : '#3b3b3b'}
-            transparent
-            opacity={i < 4 ? 0.6 : 0.4}
-          />
-        </line>
-      ))}
+          </line>
+        )
+      })}
 
       {/* Radar fill */}
       <mesh ref={fillRef}>
@@ -131,9 +132,7 @@ export default function SkillRadar({
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={linePoints.length}
-            array={new Float32Array(linePoints.flatMap(p => [p.x, p.y, p.z]))}
-            itemSize={3}
+            args={[new Float32Array(linePoints.flatMap(p => [p.x, p.y, p.z])), 3]}
           />
         </bufferGeometry>
         <lineBasicMaterial color={color} transparent opacity={0.9} linewidth={2} />

@@ -167,9 +167,7 @@ export default function ParticleField({
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={count}
-            array={positions}
-            itemSize={3}
+            args={[positions, 3]}
           />
         </bufferGeometry>
         <pointsMaterial
@@ -188,9 +186,7 @@ export default function ParticleField({
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={lineBuffer.length / 3}
-            array={lineBuffer}
-            itemSize={3}
+            args={[lineBuffer, 3]}
           />
         </bufferGeometry>
         <lineBasicMaterial
