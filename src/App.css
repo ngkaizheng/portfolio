@@ -271,6 +271,13 @@ a:focus-visible {
   overflow: hidden;
 }
 
+.hero-3d-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .hero-grid {
   position: absolute;
   inset: 0;
@@ -1921,5 +1928,21 @@ a:focus-visible {
 
   .contact-list li {
     font-size: 0.85rem;
+  }
+}
+
+/* ─── WebGL Fallback ───────────────────────────────────── */
+.no-webgl .hero-3d-bg {
+  display: none;
+}
+
+.no-webgl .hero {
+  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+}
+
+/* ─── Reduced Motion: disable 3D animations ────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-3d-bg {
+    display: none;
   }
 }

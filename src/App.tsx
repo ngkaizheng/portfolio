@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, lazy, Suspense } from 'react'
 import './App.css'
+
+const Scene = lazy(() => import('./components/three/Scene'))
 
 const resumeHref = '/resume/NgKaiZheng_Resume.pdf'
 const linkedInUrl = 'https://linkedin.com/in/ngkaizheng'
@@ -586,6 +588,12 @@ function Hero({ scrollTo }: { scrollTo: (id: string) => void }) {
 
   return (
     <section className="hero" id="top" aria-label="Hero">
+      <div className="hero-3d-bg" aria-hidden="true">
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
+      </div>
+
       <div className="hero-grid" aria-hidden="true">
         {Array.from({ length: 48 }).map((_, i) => (
           <span key={i} className="grid-dot" />
