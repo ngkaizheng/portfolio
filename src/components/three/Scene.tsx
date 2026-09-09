@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { Suspense, useState, useEffect } from 'react'
-import { Preload, OrbitControls } from '@react-three/drei'
+import { Preload } from '@react-three/drei'
 import ParticleField from './ParticleField'
 import Effects from './Effects'
 
@@ -21,7 +21,7 @@ function AdaptiveCanvas({ children }: { children: React.ReactNode }) {
   return (
     <Canvas
       dpr={dpr}
-      camera={{ position: [0, 0, 5], fov: 60 }}
+      camera={{ position: [0, 0, 6], fov: 55 }}
       gl={{
         antialias: true,
         alpha: true,
@@ -40,17 +40,7 @@ function AdaptiveCanvas({ children }: { children: React.ReactNode }) {
 export default function Scene() {
   return (
     <AdaptiveCanvas>
-      <fog attach="fog" args={['#0a0a0a', 6, 18]} />
-      <ambientLight intensity={0.3} />
-      <pointLight position={[5, 5, 5]} intensity={0.8} color="#60a5fa" />
-      <pointLight position={[-5, -5, 3]} intensity={0.4} color="#a855f7" />
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        rotateSpeed={0.5}
-        dampingFactor={0.1}
-        enableDamping
-      />
+      <fog attach="fog" args={['#0a0a0a', 6, 16]} />
       <ParticleField />
       <Effects />
     </AdaptiveCanvas>
