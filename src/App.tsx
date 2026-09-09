@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback, lazy, Suspense } from 'react'
 import './App.css'
 
 const Scene = lazy(() => import('./components/three/Scene'))
+const SkillsScene = lazy(() => import('./components/three/SkillsScene'))
 
 const resumeHref = '/resume/NgKaiZheng_Resume.pdf'
 const linkedInUrl = 'https://linkedin.com/in/ngkaizheng'
@@ -917,9 +918,29 @@ function ArchitectureDiagram({ nodes }: { nodes: { label: string; x: number; y: 
 
 function ProjectCard({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width - 0.5
+    const y = (e.clientY - rect.top) / rect.height - 0.5
+    cardRef.current.style.transform = `perspective(1000px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale(1.02)`
+  }
+
+  const handleMouseLeave = () => {
+    if (cardRef.current) {
+      cardRef.current.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1)'
+    }
+  }
 
   return (
-    <article className={`project-card ${expanded ? 'expanded' : ''}`}>
+    <article
+      ref={cardRef}
+      className={`project-card ${expanded ? 'expanded' : ''}`}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="project-header">
         <div>
           <h3 className="project-name">{project.name}</h3>
@@ -970,9 +991,26 @@ function Projects() {
 }
 
 function Skills() {
+  // Top 6 skills for the radar chart
+  const topSkills = [
+    { name: '.NET', level: 92 },
+    { name: 'React', level: 90 },
+    { name: 'TypeScript', level: 92 },
+    { name: 'AI/ML', level: 88 },
+    { name: 'Azure', level: 88 },
+    { name: 'Architecture', level: 90 },
+  ]
+
   return (
     <section className="section" id="skills" aria-labelledby="skills-heading">
       <SectionHeader label="Skills" title="What I work with" />
+
+      <div className="skills-3d-container reveal">
+        <Suspense fallback={null}>
+          <SkillsScene skills={topSkills} className="skills-radar" />
+        </Suspense>
+      </div>
+
       <div className="skills-categories">
         {skillCategories.map((cat) => (
           <div key={cat.name} className="skill-category reveal">

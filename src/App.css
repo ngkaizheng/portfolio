@@ -812,11 +812,14 @@ a:focus-visible {
   border: 1px solid #27272a;
   border-radius: 8px;
   padding: 24px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .project-card:hover {
   border-color: #3b3b3b;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(37, 99, 235, 0.1);
 }
 
 .project-card.expanded {
