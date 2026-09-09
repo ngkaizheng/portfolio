@@ -5,7 +5,7 @@ import * as THREE from 'three'
 
 interface Skill {
   name: string
-  level: number // 0-100
+  level: number
 }
 
 interface SkillRadarProps {
@@ -16,17 +16,16 @@ interface SkillRadarProps {
 
 export default function SkillRadar({
   skills,
-  radius = 2,
+  radius = 1.8,
   color = '#60a5fa',
 }: SkillRadarProps) {
   const groupRef = useRef<THREE.Group>(null)
-  const linesRef = useRef<THREE.Line>(null)
   const fillRef = useRef<THREE.Mesh>(null)
 
   const count = skills.length
   const angleStep = (Math.PI * 2) / count
 
-  // Generate radar shape points
+  // Radar shape points
   const { linePoints, fillShape } = useMemo(() => {
     const linePts: THREE.Vector3[] = []
     const shape = new THREE.Shape()
@@ -46,34 +45,36 @@ export default function SkillRadar({
       }
     })
 
-    // Close the shape
+    // Close the shape — push first point again for closed line loop
+    linePts.push(linePts[0].clone())
     shape.closePath()
 
     return { linePoints: linePts, fillShape: shape }
   }, [skills, radius, angleStep])
 
-  // Generate grid lines
-  const gridLines = useMemo(() => {
-    const lines: THREE.Vector3[][] = []
+  // Grid: concentric polygons + radial lines
+  const gridPolygons = useMemo(() => {
+    const polygons: THREE.Vector3[][] = []
 
-    // Concentric circles
-    for (let r = 0.25; r <= 1; r += 0.25) {
-      const circle: THREE.Vector3[] = []
-      for (let i = 0; i <= 64; i++) {
-        const angle = (i / 64) * Math.PI * 2
-        circle.push(new THREE.Vector3(
-          Math.cos(angle) * radius * r,
-          Math.sin(angle) * radius * r,
+    // Concentric hexagons at 25%, 50%, 75%, 100%
+    for (let level = 0.25; level <= 1; level += 0.25) {
+      const pts: THREE.Vector3[] = []
+      for (let i = 0; i <= count; i++) {
+        const angle = (i % count) * angleStep - Math.PI / 2
+        const r = radius * level
+        pts.push(new THREE.Vector3(
+          Math.cos(angle) * r,
+          Math.sin(angle) * r,
           0
         ))
       }
-      lines.push(circle)
+      polygons.push(pts)
     }
 
-    // Radial lines
+    // Radial lines from center to each vertex
     for (let i = 0; i < count; i++) {
       const angle = i * angleStep - Math.PI / 2
-      lines.push([
+      polygons.push([
         new THREE.Vector3(0, 0, 0),
         new THREE.Vector3(
           Math.cos(angle) * radius,
@@ -83,40 +84,44 @@ export default function SkillRadar({
       ])
     }
 
-    return lines
+    return polygons
   }, [count, radius, angleStep])
 
-  // Animate rotation
+  // Gentle rotation
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.1
+      groupRef.current.rotation.z = Math.sin(state.clock.getElapsedTime() * 0.15) * 0.08
     }
   })
 
   return (
     <group ref={groupRef}>
-      {/* Grid circles */}
-      {gridLines.map((line, i) => (
+      {/* Grid lines */}
+      {gridPolygons.map((pts, i) => (
         <line key={i}>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
-              count={line.length}
-              array={new Float32Array(line.flatMap(p => [p.x, p.y, p.z]))}
+              count={pts.length}
+              array={new Float32Array(pts.flatMap(p => [p.x, p.y, p.z]))}
               itemSize={3}
             />
           </bufferGeometry>
-          <lineBasicMaterial color="#27272a" transparent opacity={0.5} />
+          <lineBasicMaterial
+            color={i < 4 ? '#27272a' : '#3b3b3b'}
+            transparent
+            opacity={i < 4 ? 0.6 : 0.4}
+          />
         </line>
       ))}
 
       {/* Radar fill */}
-      <mesh>
+      <mesh ref={fillRef}>
         <shapeGeometry args={[fillShape]} />
         <meshBasicMaterial
           color={color}
           transparent
-          opacity={0.15}
+          opacity={0.12}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -131,28 +136,39 @@ export default function SkillRadar({
             itemSize={3}
           />
         </bufferGeometry>
-        <lineBasicMaterial color={color} transparent opacity={0.8} />
+        <lineBasicMaterial color={color} transparent opacity={0.9} linewidth={2} />
       </line>
 
       {/* Skill labels */}
       {skills.map((skill, i) => {
         const angle = i * angleStep - Math.PI / 2
-        const labelR = radius + 0.4
+        const labelR = radius + 0.35
         const x = Math.cos(angle) * labelR
         const y = Math.sin(angle) * labelR
 
         return (
-          <Text
-            key={skill.name}
-            position={[x, y, 0]}
-            fontSize={0.12}
-            color="#a1a1aa"
-            anchorX="center"
-            anchorY="middle"
-            maxWidth={1.5}
-          >
-            {skill.name}
-          </Text>
+          <group key={skill.name}>
+            <Text
+              position={[x, y, 0]}
+              fontSize={0.14}
+              color="#d4d4d8"
+              anchorX="center"
+              anchorY="middle"
+              maxWidth={1.5}
+
+            >
+              {skill.name}
+            </Text>
+            <Text
+              position={[x, y - 0.18, 0]}
+              fontSize={0.1}
+              color={color}
+              anchorX="center"
+              anchorY="middle"
+            >
+              {skill.level}%
+            </Text>
+          </group>
         )
       })}
 
@@ -164,12 +180,26 @@ export default function SkillRadar({
         const y = Math.sin(angle) * r
 
         return (
-          <mesh key={skill.name} position={[x, y, 0.01]}>
-            <circleGeometry args={[0.05, 16]} />
-            <meshBasicMaterial color={color} />
-          </mesh>
+          <group key={skill.name}>
+            {/* Outer glow */}
+            <mesh position={[x, y, -0.01]}>
+              <circleGeometry args={[0.09, 16]} />
+              <meshBasicMaterial color={color} transparent opacity={0.2} />
+            </mesh>
+            {/* Inner dot */}
+            <mesh position={[x, y, 0.01]}>
+              <circleGeometry args={[0.05, 16]} />
+              <meshBasicMaterial color={color} />
+            </mesh>
+          </group>
         )
       })}
+
+      {/* Center dot */}
+      <mesh position={[0, 0, 0.01]}>
+        <circleGeometry args={[0.03, 16]} />
+        <meshBasicMaterial color="#52525b" />
+      </mesh>
     </group>
   )
 }

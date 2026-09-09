@@ -991,7 +991,6 @@ function Projects() {
 }
 
 function Skills() {
-  // Top 6 skills for the radar chart
   const topSkills = [
     { name: '.NET', level: 92 },
     { name: 'React', level: 90 },
@@ -1005,34 +1004,27 @@ function Skills() {
     <section className="section" id="skills" aria-labelledby="skills-heading">
       <SectionHeader label="Skills" title="What I work with" />
 
-      <div className="skills-3d-container reveal">
-        <Suspense fallback={null}>
-          <SkillsScene skills={topSkills} className="skills-radar" />
-        </Suspense>
-      </div>
+      <div className="skills-layout">
+        {/* 3D Radar — left */}
+        <div className="skills-radar-wrap reveal">
+          <Suspense fallback={null}>
+            <SkillsScene skills={topSkills} className="skills-radar" />
+          </Suspense>
+        </div>
 
-      <div className="skills-categories">
-        {skillCategories.map((cat) => (
-          <div key={cat.name} className="skill-category reveal">
-            <h3 className="skill-cat-name">{cat.name}</h3>
-            <div className="skill-bars">
-              {cat.skills.map((s) => (
-                <div key={s.name} className="skill-bar-item">
-                  <div className="skill-bar-header">
-                    <span className="skill-bar-name">{s.name}</span>
-                    <span className="skill-bar-pct">{s.level}%</span>
-                  </div>
-                  <div className="skill-bar-track">
-                    <div
-                      className="skill-bar-fill"
-                      style={{ width: `${s.level}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+        {/* Tag categories — right */}
+        <div className="skills-tags-wrap">
+          {skillCategories.map((cat) => (
+            <div key={cat.name} className="skill-tag-group reveal">
+              <h3 className="skill-cat-name">{cat.name}</h3>
+              <div className="skill-tags">
+                {cat.skills.map((s) => (
+                  <span key={s.name} className="skill-tag">{s.name}</span>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )
