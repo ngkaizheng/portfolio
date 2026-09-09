@@ -1113,27 +1113,27 @@ function Footer() {
   )
 }
 
-/* ─── Loading Skeleton ─────────────────────────────────── */
+/* ─── Loading Screen ─────────────────────────────────── */
 
 function LoadingSkeleton() {
   return (
-    <div className="skeleton-screen" aria-label="Loading portfolio">
-      <div className="skeleton-nav">
-        <div className="skeleton-block skeleton-line-short" />
-        <div className="skeleton-block skeleton-line-short" />
-        <div className="skeleton-block skeleton-line-short" />
-      </div>
-      <div className="skeleton-hero">
-        <div className="skeleton-block skeleton-badge" />
-        <div className="skeleton-block skeleton-title" />
-        <div className="skeleton-block skeleton-subtitle" />
-        <div className="skeleton-block skeleton-paragraph" />
-        <div className="skeleton-stats">
-          <div className="skeleton-block skeleton-stat" />
-          <div className="skeleton-block skeleton-stat" />
-          <div className="skeleton-block skeleton-stat" />
-          <div className="skeleton-block skeleton-stat" />
+    <div className="loading-screen" aria-label="Loading portfolio">
+      <div className="loading-3d">
+        <div className="loading-cube">
+          <div className="cube-face front" />
+          <div className="cube-face back" />
+          <div className="cube-face left" />
+          <div className="cube-face right" />
+          <div className="cube-face top" />
+          <div className="cube-face bottom" />
         </div>
+      </div>
+      <div className="loading-text">
+        <span className="loading-name">Ng Kai Zheng</span>
+        <span className="loading-role">Software Engineer</span>
+      </div>
+      <div className="loading-bar-container">
+        <div className="loading-bar" />
       </div>
     </div>
   )
