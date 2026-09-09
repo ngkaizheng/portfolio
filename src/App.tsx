@@ -363,7 +363,7 @@ const skillCategories: SkillCategory[] = [
 
 /* ─── Hooks ─────────────────────────────────────────────── */
 
-function useReveal() {
+function useReveal(deps?: unknown[]) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -375,7 +375,7 @@ function useReveal() {
     )
     document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [])
+  }, deps)
 }
 
 function useCounter(active: boolean, target: number, duration = 1800) {
@@ -1097,13 +1097,14 @@ function LoadingSkeleton() {
 
 function App() {
   const [loading, setLoading] = useState(true)
-  useReveal()
   const { active, scrollTo } = useActiveSection()
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600)
     return () => clearTimeout(timer)
   }, [])
+
+  useReveal([loading])
 
   if (loading) return <LoadingSkeleton />
 
