@@ -5,90 +5,187 @@ import * as THREE from 'three'
 interface ParticleFieldProps {
   color?: string
   size?: number
+  shape?: 'diamond' | 'circle'
+  radius?: number
+  particleCount?: number
+  innerCount?: number
+  autoRotate?: boolean
 }
 
 export default function ParticleField({
   color = '#60a5fa',
-  size = 0.022,
+  size = 0.03,
+  shape = 'diamond',
+  radius = 5.5,
+  particleCount = 480,
+  innerCount = 60,
+  autoRotate = true,
 }: ParticleFieldProps) {
   const pointsRef = useRef<THREE.Points>(null)
   const linesRef = useRef<THREE.LineSegments>(null)
+  const groupRef = useRef<THREE.Group>(null)
+
   const mouse = useRef({ x: 0, y: 0 })
   const mouseTarget = useRef({ x: 0, y: 0 })
   const mouseSpeed = useRef(0)
+  const rotationAngle = useRef(0)
 
-  // Grid params
-  const cols = 34
-  const rows = 24
-  const spacing = 0.5
-  const scatterRadius = 1.8
-
-  // Diamond boundary (in grid units from center)
-  const diamondRadius = 11.5
-
-  // Generate grid, keep only nodes inside diamond, build neighbor map
-  const { positions, basePositions, activeCount, neighborMap } = useMemo(() => {
-    const pos = new Float32Array(cols * rows * 3)
-    const base = new Float32Array(cols * rows * 3)
-    // Map grid (row, col) → active index, or -1 if filtered out
-    const gridMap: number[][] = Array.from({ length: rows }, () => Array(cols).fill(-1))
-    let idx = 0
-
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const gx = col - (cols - 1) / 2
-        const gy = row - (rows - 1) / 2
-        if (Math.abs(gx) + Math.abs(gy) > diamondRadius) continue
-
-        const i3 = idx * 3
-        const x = col * spacing - (cols - 1) / 2 * spacing
-        const y = row * spacing - (rows - 1) / 2 * spacing
-
-        pos[i3] = x + (Math.random() - 0.5) * 0.03
-        pos[i3 + 1] = y + (Math.random() - 0.5) * 0.03
-        pos[i3 + 2] = (Math.random() - 0.5) * 0.15
-
-        base[i3] = pos[i3]
-        base[i3 + 1] = pos[i3 + 1]
-        base[i3 + 2] = pos[i3 + 2]
-
-        gridMap[row][col] = idx
-        idx++
-      }
-    }
-
-    // Build neighbor pairs (diagonal connections only)
+  // Generate boundary + inner particles
+  const { positions, basePositions, neighborPairs, totalCount } = useMemo(() => {
+    const pts: [number, number, number][] = []
     const pairs: [number, number][] = []
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const i = gridMap[row][col]
-        if (i === -1) continue
 
-        // Bottom-right
-        if (row + 1 < rows && col + 1 < cols) {
-          const j = gridMap[row + 1][col + 1]
-          if (j !== -1) pairs.push([i, j])
+    // 1. Boundary points
+    const boundaryPts: [number, number, number][] = []
+    const countPerEdge = Math.floor(particleCount / 4)
+
+    if (shape === 'diamond') {
+      const edges: [[number, number], [number, number]][] = [
+        [[-radius, 0], [0, radius]],
+        [[0, radius], [radius, 0]],
+        [[radius, 0], [0, -radius]],
+        [[0, -radius], [-radius, 0]],
+      ]
+
+      for (const [start, end] of edges) {
+        for (let i = 0; i < countPerEdge; i++) {
+          const t = i / countPerEdge
+          const noise = 0.04
+          const x = start[0] + (end[0] - start[0]) * t + (Math.random() - 0.5) * noise
+          const y = start[1] + (end[1] - start[1]) * t + (Math.random() - 0.5) * noise
+          const z = (Math.random() - 0.5) * 0.2
+          boundaryPts.push([x, y, z])
         }
-        // Bottom-left
-        if (row + 1 < rows && col - 1 >= 0) {
-          const j = gridMap[row + 1][col - 1]
-          if (j !== -1) pairs.push([i, j])
+      }
+      // Fill remaining
+      const remaining = particleCount - boundaryPts.length
+      for (let i = 0; i < remaining; i++) {
+        const t = i / Math.max(remaining, 1)
+        const noise = 0.04
+        const x = -radius + radius * t + (Math.random() - 0.5) * noise
+        const y = radius * t + (Math.random() - 0.5) * noise
+        const z = (Math.random() - 0.5) * 0.2
+        boundaryPts.push([x, y, z])
+      }
+    } else {
+      for (let i = 0; i < particleCount; i++) {
+        const theta = (i / particleCount) * Math.PI * 2
+        const noise = 0.03
+        const r = radius + (Math.random() - 0.5) * noise
+        const x = r * Math.cos(theta) + (Math.random() - 0.5) * noise
+        const y = r * Math.sin(theta) + (Math.random() - 0.5) * noise
+        const z = (Math.random() - 0.5) * 0.2
+        boundaryPts.push([x, y, z])
+      }
+    }
+
+    // 2. Inner scattered points
+    const innerPts: [number, number, number][] = []
+    for (let i = 0; i < innerCount; i++) {
+      let x: number, y: number
+      if (shape === 'diamond') {
+        let valid = false
+        let attempts = 0
+        while (!valid && attempts < 50) {
+          const rx = (Math.random() - 0.5) * radius * 1.8
+          const ry = (Math.random() - 0.5) * radius * 1.8
+          if (Math.abs(rx) + Math.abs(ry) < radius * 0.85) {
+            x = rx
+            y = ry
+            valid = true
+          }
+          attempts++
+        }
+        if (!valid) {
+          x = (Math.random() - 0.5) * radius * 0.6
+          y = (Math.random() - 0.5) * radius * 0.6
+        }
+      } else {
+        const r = Math.sqrt(Math.random()) * radius * 0.7
+        const theta = Math.random() * Math.PI * 2
+        x = r * Math.cos(theta)
+        y = r * Math.sin(theta)
+      }
+      const z = (Math.random() - 0.5) * 0.3
+      innerPts.push([x!, y!, z])
+    }
+
+    // Merge all points
+    const allPts = [...boundaryPts, ...innerPts]
+    const count = allPts.length
+
+    const pos = new Float32Array(count * 3)
+    const base = new Float32Array(count * 3)
+
+    for (let i = 0; i < count; i++) {
+      const [x, y, z] = allPts[i]
+      pos[i * 3] = x
+      pos[i * 3 + 1] = y
+      pos[i * 3 + 2] = z
+      base[i * 3] = x
+      base[i * 3 + 1] = y
+      base[i * 3 + 2] = z
+    }
+
+    // 3. Boundary connections
+    const bCount = boundaryPts.length
+    if (shape === 'diamond') {
+      const perEdge = Math.floor(bCount / 4)
+      for (let e = 0; e < 4; e++) {
+        const start = e * perEdge
+        const end = Math.min((e + 1) * perEdge, bCount)
+        for (let i = start; i < end - 1; i++) {
+          pairs.push([i, i + 1])
+        }
+        if (e < 3) {
+          const nextStart = (e + 1) * perEdge
+          if (end < bCount && nextStart < bCount) {
+            pairs.push([end - 1, nextStart])
+          }
+        }
+      }
+      if (bCount > 0) {
+        const lastEdgeStart = 3 * perEdge
+        if (lastEdgeStart < bCount) {
+          pairs.push([bCount - 1, 0])
+        }
+      }
+    } else {
+      for (let i = 0; i < bCount; i++) {
+        const j = (i + 1) % bCount
+        pairs.push([i, j])
+      }
+    }
+
+    // Also connect inner points to nearby boundary points
+    for (let i = bCount; i < count; i++) {
+      const ix = base[i * 3]
+      const iy = base[i * 3 + 1]
+      for (let j = 0; j < bCount; j++) {
+        const jx = base[j * 3]
+        const jy = base[j * 3 + 1]
+        const dist = Math.sqrt((ix - jx) ** 2 + (iy - jy) ** 2)
+        if (dist < 1.2) {
+          pairs.push([i, j])
         }
       }
     }
 
-    return { positions: pos, basePositions: base, activeCount: idx, neighborMap: pairs }
-  }, [cols, rows, spacing, diamondRadius])
-
-  const count = activeCount
+    return {
+      positions: pos,
+      basePositions: base,
+      neighborPairs: pairs,
+      totalCount: count,
+    }
+  }, [shape, radius, particleCount, innerCount])
 
   // Line buffer
   const lineBuffer = useMemo(() => {
-    // Each node: up to 4 diagonal connections
-    const maxLines = count * 4
+    const maxLines = neighborPairs.length
     return new Float32Array(maxLines * 2 * 3)
-  }, [count])
+  }, [neighborPairs.length])
 
+  // Mouse tracking
   const handlePointerMove = useCallback((e: PointerEvent) => {
     mouseTarget.current.x = (e.clientX / window.innerWidth - 0.5) * 2
     mouseTarget.current.y = -(e.clientY / window.innerHeight - 0.5) * 2
@@ -97,15 +194,18 @@ export default function ParticleField({
   useMemo(() => {
     if (typeof window !== 'undefined') {
       window.addEventListener('pointermove', handlePointerMove)
+      return () => window.removeEventListener('pointermove', handlePointerMove)
     }
   }, [handlePointerMove])
 
-  useFrame(() => {
-    if (!pointsRef.current || !linesRef.current) return
+  // Animation loop
+  useFrame((_, delta) => {
+    if (!pointsRef.current || !linesRef.current || !groupRef.current) return
 
     const posAttr = pointsRef.current.geometry.attributes.position
     const arr = posAttr.array as Float32Array
 
+    // Smooth mouse
     const prevX = mouse.current.x
     const prevY = mouse.current.y
     mouse.current.x += (mouseTarget.current.x - mouse.current.x) * 0.06
@@ -114,40 +214,50 @@ export default function ParticleField({
       (mouse.current.x - prevX) ** 2 + (mouse.current.y - prevY) ** 2
     )
 
-    // Update positions
-    for (let i = 0; i < count; i++) {
-      const i3 = i * 3
+    const mx = mouse.current.x * 6
+    const my = mouse.current.y * 4
 
-      const mx = mouse.current.x * 7
-      const my = mouse.current.y * 4
+    // Update particle positions
+    for (let i = 0; i < totalCount; i++) {
+      const i3 = i * 3
       const dx = arr[i3] - mx
       const dy = arr[i3 + 1] - my
       const dist = Math.sqrt(dx * dx + dy * dy)
 
+      const scatterRadius = 2.0
       if (dist < scatterRadius && dist > 0.01) {
-        const force = (1 - dist / scatterRadius) * 0.15 * (1 + mouseSpeed.current * 8)
+        const force = (1 - dist / scatterRadius) * 0.18 * (1 + mouseSpeed.current * 10)
         arr[i3] += (dx / dist) * force
         arr[i3 + 1] += (dy / dist) * force
+        arr[i3 + 2] += (basePositions[i3 + 2] - arr[i3 + 2]) * 0.02 +
+          (Math.random() - 0.5) * 0.002
       }
 
-      arr[i3] += (basePositions[i3] - arr[i3]) * 0.04
-      arr[i3 + 1] += (basePositions[i3 + 1] - arr[i3 + 1]) * 0.04
-      arr[i3 + 2] += (basePositions[i3 + 2] - arr[i3 + 2]) * 0.04
+      const spring = 0.035 + 0.01 * (1 - Math.min(mouseSpeed.current * 5, 1))
+      arr[i3] += (basePositions[i3] - arr[i3]) * spring
+      arr[i3 + 1] += (basePositions[i3 + 1] - arr[i3 + 1]) * spring
+      arr[i3 + 2] += (basePositions[i3 + 2] - arr[i3 + 2]) * 0.03
     }
-
     posAttr.needsUpdate = true
 
-    // Build DIAMOND connections using precomputed neighbor pairs
+    // Update lines with distance filtering
     const lineArr = linesRef.current.geometry.attributes.position.array as Float32Array
     let lineIdx = 0
     const maxVerts = lineBuffer.length / 3
 
-    for (let p = 0; p < neighborMap.length; p++) {
-      const [ai, bi] = neighborMap[p]
+    for (let p = 0; p < neighborPairs.length; p++) {
+      const [ai, bi] = neighborPairs[p]
       const a3 = ai * 3
       const b3 = bi * 3
       const vi = lineIdx * 6
       if (vi + 5 >= maxVerts) break
+
+      const dx = arr[a3] - arr[b3]
+      const dy = arr[a3 + 1] - arr[b3 + 1]
+      const dz = arr[a3 + 2] - arr[b3 + 2]
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
+      if (dist > radius * 0.45) continue
+
       lineArr[vi] = arr[a3]
       lineArr[vi + 1] = arr[a3 + 1]
       lineArr[vi + 2] = arr[a3 + 2]
@@ -159,15 +269,26 @@ export default function ParticleField({
 
     linesRef.current.geometry.setDrawRange(0, lineIdx * 2)
     linesRef.current.geometry.attributes.position.needsUpdate = true
+
+    // Auto rotate
+    if (autoRotate) {
+      rotationAngle.current += delta * 0.08
+      groupRef.current.rotation.y = rotationAngle.current
+    }
+
+    // Line opacity varies with mouse speed
+    const lineMat = linesRef.current.material as THREE.LineBasicMaterial
+    const speedFactor = Math.min(mouseSpeed.current * 2, 1)
+    lineMat.opacity = 0.06 + 0.06 * (1 - speedFactor)
   })
 
   return (
-    <group>
+    <group ref={groupRef}>
       <points ref={pointsRef}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={count}
+            count={totalCount}
             array={positions}
             itemSize={3}
           />
@@ -176,7 +297,7 @@ export default function ParticleField({
           size={size}
           color={color}
           transparent
-          opacity={0.9}
+          opacity={0.92}
           sizeAttenuation
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -195,7 +316,7 @@ export default function ParticleField({
         <lineBasicMaterial
           color={color}
           transparent
-          opacity={0.09}
+          opacity={0.08}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
