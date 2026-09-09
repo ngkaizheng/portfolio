@@ -17,15 +17,16 @@ export default function ParticleField({
   const mouseTarget = useRef({ x: 0, y: 0 })
   const mouseSpeed = useRef(0)
 
-  // Diamond grid parameters
-  const cols = 22
-  const rows = 16
-  const spacingX = 0.95
-  const spacingY = 0.95
+  // Diamond grid: fill the viewport from edge to edge
+  // Camera at z=5, fov=60 → visible area ≈ ±5.8 x ±3.3
+  const cols = 26
+  const rows = 18
+  const spacingX = 0.55
+  const spacingY = 0.55
   const count = cols * rows
-  const scatterRadius = 2.0
+  const scatterRadius = 1.8
 
-  // Generate structured diamond grid positions
+  // Generate diamond grid — centered, covering full viewport
   const { positions, basePositions } = useMemo(() => {
     const pos = new Float32Array(count * 3)
     const base = new Float32Array(count * 3)
@@ -35,18 +36,18 @@ export default function ParticleField({
       for (let col = 0; col < cols; col++) {
         const i3 = idx * 3
 
-        // Diamond pattern: offset every other row
+        // Offset odd rows by half spacing → creates diamond lattice
         const offsetX = row % 2 === 1 ? spacingX * 0.5 : 0
-        const x = (col - cols / 2) * spacingX + offsetX
-        const y = (row - rows / 2) * spacingY
+        const x = (col - (cols - 1) / 2) * spacingX + offsetX
+        const y = (row - (rows - 1) / 2) * spacingY
 
-        // Subtle random offset for organic feel
-        const jitterX = (Math.random() - 0.5) * 0.08
-        const jitterY = (Math.random() - 0.5) * 0.08
+        // Tiny jitter for organic feel
+        const jx = (Math.random() - 0.5) * 0.04
+        const jy = (Math.random() - 0.5) * 0.04
 
-        pos[i3] = x + jitterX
-        pos[i3 + 1] = y + jitterY
-        pos[i3 + 2] = (Math.random() - 0.5) * 0.3
+        pos[i3] = x + jx
+        pos[i3 + 1] = y + jy
+        pos[i3 + 2] = (Math.random() - 0.5) * 0.2
 
         base[i3] = pos[i3]
         base[i3 + 1] = pos[i3 + 1]
@@ -58,14 +59,12 @@ export default function ParticleField({
     return { positions: pos, basePositions: base }
   }, [count, cols, rows, spacingX, spacingY])
 
-  // Line buffer for diamond connections
+  // Line buffer
   const lineBuffer = useMemo(() => {
-    // Each node connects to ~4 neighbors (diamond edges)
-    const maxLines = count * 6
+    const maxLines = count * 5
     return new Float32Array(maxLines * 2 * 3)
   }, [count])
 
-  // Track mouse globally
   const handlePointerMove = useCallback((e: PointerEvent) => {
     mouseTarget.current.x = (e.clientX / window.innerWidth - 0.5) * 2
     mouseTarget.current.y = -(e.clientY / window.innerHeight - 0.5) * 2
@@ -98,18 +97,18 @@ export default function ParticleField({
 
       // Mouse scatter
       const mx = mouse.current.x * 7
-      const my = mouse.current.y * 7
+      const my = mouse.current.y * 4
       const dx = arr[i3] - mx
       const dy = arr[i3 + 1] - my
       const dist = Math.sqrt(dx * dx + dy * dy)
 
       if (dist < scatterRadius && dist > 0.01) {
-        const force = (1 - dist / scatterRadius) * 0.12 * (1 + mouseSpeed.current * 8)
+        const force = (1 - dist / scatterRadius) * 0.15 * (1 + mouseSpeed.current * 8)
         arr[i3] += (dx / dist) * force
         arr[i3 + 1] += (dy / dist) * force
       }
 
-      // Spring back to base position
+      // Spring back
       arr[i3] += (basePositions[i3] - arr[i3]) * 0.04
       arr[i3 + 1] += (basePositions[i3 + 1] - arr[i3 + 1]) * 0.04
       arr[i3 + 2] += (basePositions[i3 + 2] - arr[i3 + 2]) * 0.04
@@ -117,79 +116,49 @@ export default function ParticleField({
 
     posAttr.needsUpdate = true
 
-    // Build diamond connection lines
+    // Build diamond connections
+    // For clean diamonds: connect right, down, and ONE diagonal only
     const lineArr = linesRef.current.geometry.attributes.position.array as Float32Array
     let lineIdx = 0
     const maxVerts = lineBuffer.length / 3
 
+    const addLine = (ai: number, bi: number) => {
+      const a3 = ai * 3
+      const b3 = bi * 3
+      const vi = lineIdx * 6
+      if (vi + 5 >= maxVerts) return
+      lineArr[vi] = arr[a3]
+      lineArr[vi + 1] = arr[a3 + 1]
+      lineArr[vi + 2] = arr[a3 + 2]
+      lineArr[vi + 3] = arr[b3]
+      lineArr[vi + 4] = arr[b3 + 1]
+      lineArr[vi + 5] = arr[b3 + 2]
+      lineIdx++
+    }
+
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const i = row * cols + col
-        const i3 = i * 3
-        const ax = arr[i3]
-        const ay = arr[i3 + 1]
 
-        // Connect to right neighbor
+        // Right neighbor
         if (col < cols - 1) {
-          const j = i + 1
-          const j3 = j * 3
-          const vertIdx = lineIdx * 6
-          if (vertIdx + 5 < maxVerts) {
-            lineArr[vertIdx] = ax
-            lineArr[vertIdx + 1] = ay
-            lineArr[vertIdx + 2] = arr[i3 + 2]
-            lineArr[vertIdx + 3] = arr[j3]
-            lineArr[vertIdx + 4] = arr[j3 + 1]
-            lineArr[vertIdx + 5] = arr[j3 + 2]
-            lineIdx++
-          }
+          addLine(i, i + 1)
         }
 
-        // Connect to bottom neighbor
+        // Down neighbor
         if (row < rows - 1) {
-          const j = i + cols
-          const j3 = j * 3
-          const vertIdx = lineIdx * 6
-          if (vertIdx + 5 < maxVerts) {
-            lineArr[vertIdx] = ax
-            lineArr[vertIdx + 1] = ay
-            lineArr[vertIdx + 2] = arr[i3 + 2]
-            lineArr[vertIdx + 3] = arr[j3]
-            lineArr[vertIdx + 4] = arr[j3 + 1]
-            lineArr[vertIdx + 5] = arr[j3 + 2]
-            lineIdx++
-          }
+          addLine(i, i + cols)
         }
 
-        // Connect diagonal (bottom-right) for diamond shape
-        if (row < rows - 1 && col < cols - 1) {
-          const j = i + cols + 1
-          const j3 = j * 3
-          const vertIdx = lineIdx * 6
-          if (vertIdx + 5 < maxVerts) {
-            lineArr[vertIdx] = ax
-            lineArr[vertIdx + 1] = ay
-            lineArr[vertIdx + 2] = arr[i3 + 2]
-            lineArr[vertIdx + 3] = arr[j3]
-            lineArr[vertIdx + 4] = arr[j3 + 1]
-            lineArr[vertIdx + 5] = arr[j3 + 2]
-            lineIdx++
-          }
-        }
-
-        // Connect diagonal (bottom-left) for diamond shape
-        if (row < rows - 1 && col > 0) {
-          const j = i + cols - 1
-          const j3 = j * 3
-          const vertIdx = lineIdx * 6
-          if (vertIdx + 5 < maxVerts) {
-            lineArr[vertIdx] = ax
-            lineArr[vertIdx + 1] = ay
-            lineArr[vertIdx + 2] = arr[i3 + 2]
-            lineArr[vertIdx + 3] = arr[j3]
-            lineArr[vertIdx + 4] = arr[j3 + 1]
-            lineArr[vertIdx + 5] = arr[j3 + 2]
-            lineIdx++
+        // ONE diagonal: bottom-right for even rows, bottom-left for odd rows
+        // This creates clean diamond shapes without crossing
+        if (row < rows - 1) {
+          if (row % 2 === 0 && col < cols - 1) {
+            // Even row → connect to bottom-right
+            addLine(i, i + cols + 1)
+          } else if (row % 2 === 1 && col > 0) {
+            // Odd row → connect to bottom-left
+            addLine(i, i + cols - 1)
           }
         }
       }
@@ -215,7 +184,7 @@ export default function ParticleField({
           size={size}
           color={color}
           transparent
-          opacity={0.85}
+          opacity={0.9}
           sizeAttenuation
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -235,7 +204,7 @@ export default function ParticleField({
         <lineBasicMaterial
           color={color}
           transparent
-          opacity={0.08}
+          opacity={0.1}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
