@@ -2,10 +2,80 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import './App.css'
 
 const resumeHref = '/resume/NgKaiZheng_Resume.pdf'
+const linkedInUrl = 'https://linkedin.com/in/ngkaizheng'
+
+/* ─── Types ────────────────────────────────────────────── */
+
+interface PipelineShowcase {
+  type: 'pipeline'
+  title: string
+  stages: string[]
+  description: string
+}
+
+interface MetricCompareShowcase {
+  type: 'metricCompare'
+  title: string
+  before: { label: string; value: string; sublabel: string }
+  after: { label: string; value: string; sublabel: string }
+  improvement: string
+}
+
+interface FlowDiagramShowcase {
+  type: 'flowDiagram'
+  title: string
+  flows: { name: string; steps: string[]; icon: string }[]
+}
+
+interface ModuleGridShowcase {
+  type: 'moduleGrid'
+  title: string
+  modules: { name: string; status: string; scope: string }[]
+  team: string
+  timeline: string
+}
+
+interface CodeExampleShowcase {
+  type: 'codeExample'
+  title: string
+  before: string
+  after: string
+}
+
+type Showcase = PipelineShowcase | MetricCompareShowcase | FlowDiagramShowcase | ModuleGridShowcase | CodeExampleShowcase
+
+interface DeepDive {
+  id: string
+  title: string
+  subtitle: string
+  problem: string
+  solution: string
+  result: string
+  tech: string[]
+  metric: string
+  metricLabel: string
+  showcase: Showcase
+}
+
+interface Project {
+  id: string
+  name: string
+  tagline: string
+  year: string
+  tech: string[]
+  summary: string
+  details: string[]
+  architecture: { label: string; x: number; y: number }[]
+}
+
+interface SkillCategory {
+  name: string
+  skills: { name: string; level: number }[]
+}
 
 /* ─── Data ──────────────────────────────────────────────── */
 
-const etiqaDeepDives = [
+const etiqaDeepDives: DeepDive[] = [
   {
     id: 'ai-agent',
     title: 'AI Agent Orchestration',
@@ -175,7 +245,7 @@ const aioExperience = {
   ],
 }
 
-const projects = [
+const projects: Project[] = [
   {
     id: 'pet-appointment',
     name: 'Pet Appointment System',
@@ -247,13 +317,48 @@ const projects = [
   },
 ]
 
-const skillCategories = [
-  { name: 'Languages', skills: ['C#', 'TypeScript', 'JavaScript', 'SQL', 'C++', 'Java'] },
-  { name: 'Backend', skills: ['.NET (Core/8+)', 'EF Core', 'MediatR (CQRS)', 'Dapper', 'REST APIs', 'Microservices', 'Quartz.NET'] },
-  { name: 'Frontend', skills: ['React', 'Micro-frontends (MFE)', 'Module Federation', 'Tailwind CSS', 'Redux'] },
-  { name: 'AI & Automation', skills: ['AI Agent Orchestration', 'Prompt Engineering', 'RAG', 'Multi-Agent Workflows'] },
-  { name: 'Architecture', skills: ['Clean Architecture', 'DDD', 'ABAC', 'JWT', 'OAuth 2.0', 'Result Pattern'] },
-  { name: 'Cloud & DevOps', skills: ['Azure (App Services, Storage, ServiceBus, KeyVault, AppInsights)', 'AWS (EC2, CloudFront, Route53)', 'Docker', 'Git', 'Jira'] },
+const skillCategories: SkillCategory[] = [
+  { name: 'Languages', skills: [
+    { name: 'C#', level: 90 },
+    { name: 'TypeScript', level: 92 },
+    { name: 'JavaScript', level: 88 },
+    { name: 'SQL', level: 85 },
+    { name: 'C++', level: 65 },
+    { name: 'Java', level: 70 },
+  ]},
+  { name: 'Backend', skills: [
+    { name: '.NET (Core/8+)', level: 92 },
+    { name: 'EF Core', level: 88 },
+    { name: 'MediatR (CQRS)', level: 85 },
+    { name: 'Dapper', level: 80 },
+    { name: 'REST APIs', level: 90 },
+    { name: 'Microservices', level: 82 },
+  ]},
+  { name: 'Frontend', skills: [
+    { name: 'React', level: 90 },
+    { name: 'Micro-frontends (MFE)', level: 85 },
+    { name: 'Module Federation', level: 82 },
+    { name: 'Tailwind CSS', level: 80 },
+    { name: 'Redux', level: 78 },
+  ]},
+  { name: 'AI & Automation', skills: [
+    { name: 'AI Agent Orchestration', level: 88 },
+    { name: 'Prompt Engineering', level: 90 },
+    { name: 'RAG', level: 82 },
+    { name: 'Multi-Agent Workflows', level: 85 },
+  ]},
+  { name: 'Architecture', skills: [
+    { name: 'Clean Architecture', level: 90 },
+    { name: 'DDD', level: 85 },
+    { name: 'ABAC', level: 82 },
+    { name: 'JWT / OAuth 2.0', level: 88 },
+  ]},
+  { name: 'Cloud & DevOps', skills: [
+    { name: 'Azure', level: 88 },
+    { name: 'AWS', level: 75 },
+    { name: 'Docker', level: 78 },
+    { name: 'Git', level: 92 },
+  ]},
 ]
 
 /* ─── Hooks ─────────────────────────────────────────────── */
@@ -480,11 +585,12 @@ function Hero({ scrollTo }: { scrollTo: (id: string) => void }) {
   }, [])
 
   return (
-    <section className="hero" id="top">
+    <section className="hero" id="top" aria-label="Hero">
       <div className="hero-grid" aria-hidden="true">
         {Array.from({ length: 48 }).map((_, i) => (
           <span key={i} className="grid-dot" />
         ))}
+        <div className="hero-grid-glow" />
       </div>
 
       <div className="hero-inner">
@@ -552,20 +658,18 @@ function SectionHeader({ label, title, subtitle }: { label: string; title: strin
   )
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function ShowcasePanel({ showcase }: { showcase: typeof etiqaDeepDives[number]['showcase'] }) {
+function ShowcasePanel({ showcase }: { showcase: Showcase }) {
   if (!showcase) return null
-  const s = showcase as any
 
-  if (s.type === 'pipeline') {
+  if (showcase.type === 'pipeline') {
     return (
       <div className="showcase-pipeline">
-        <p className="showcase-title">{s.title}</p>
+        <p className="showcase-title">{showcase.title}</p>
         <div className="pipeline-stages">
-          {s.stages.map((stage: string, i: number) => (
+          {showcase.stages.map((stage: string, i: number) => (
             <span key={stage} className="pipeline-stage-wrap">
               <span className="pipeline-stage">{stage}</span>
-              {i < s.stages.length - 1 && (
+              {i < showcase.stages.length - 1 && (
                 <span className="pipeline-arrow" aria-hidden="true">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </span>
@@ -573,41 +677,41 @@ function ShowcasePanel({ showcase }: { showcase: typeof etiqaDeepDives[number]['
             </span>
           ))}
         </div>
-        <p className="showcase-desc">{s.description}</p>
+        <p className="showcase-desc">{showcase.description}</p>
       </div>
     )
   }
 
-  if (s.type === 'metricCompare') {
+  if (showcase.type === 'metricCompare') {
     return (
       <div className="showcase-metric">
-        <p className="showcase-title">{s.title}</p>
+        <p className="showcase-title">{showcase.title}</p>
         <div className="metric-compare">
           <div className="metric-box before">
-            <span className="metric-box-label">{s.before.label}</span>
-            <span className="metric-box-value">{s.before.value}</span>
-            <span className="metric-box-sub">{s.before.sublabel}</span>
+            <span className="metric-box-label">{showcase.before.label}</span>
+            <span className="metric-box-value">{showcase.before.value}</span>
+            <span className="metric-box-sub">{showcase.before.sublabel}</span>
           </div>
           <span className="metric-arrow" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </span>
           <div className="metric-box after">
-            <span className="metric-box-label">{s.after.label}</span>
-            <span className="metric-box-value">{s.after.value}</span>
-            <span className="metric-box-sub">{s.after.sublabel}</span>
+            <span className="metric-box-label">{showcase.after.label}</span>
+            <span className="metric-box-value">{showcase.after.value}</span>
+            <span className="metric-box-sub">{showcase.after.sublabel}</span>
           </div>
         </div>
-        <span className="metric-badge">{s.improvement}</span>
+        <span className="metric-badge">{showcase.improvement}</span>
       </div>
     )
   }
 
-  if (s.type === 'flowDiagram') {
+  if (showcase.type === 'flowDiagram') {
     return (
       <div className="showcase-flow">
-        <p className="showcase-title">{s.title}</p>
+        <p className="showcase-title">{showcase.title}</p>
         <div className="flow-list">
-          {s.flows.map((flow: any) => (
+          {showcase.flows.map((flow) => (
             <div key={flow.name} className="flow-row">
               <span className="flow-name">{flow.name}</span>
               <span className="flow-steps">
@@ -625,12 +729,12 @@ function ShowcasePanel({ showcase }: { showcase: typeof etiqaDeepDives[number]['
     )
   }
 
-  if (s.type === 'moduleGrid') {
+  if (showcase.type === 'moduleGrid') {
     return (
       <div className="showcase-modules">
-        <p className="showcase-title">{s.title}</p>
+        <p className="showcase-title">{showcase.title}</p>
         <div className="module-list">
-          {s.modules.map((mod: any) => (
+          {showcase.modules.map((mod) => (
             <div key={mod.name} className="module-item">
               <span className="module-status" aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -643,26 +747,26 @@ function ShowcasePanel({ showcase }: { showcase: typeof etiqaDeepDives[number]['
           ))}
         </div>
         <div className="module-meta">
-          <span>{s.team}</span>
+          <span>{showcase.team}</span>
           <span className="module-meta-sep">/</span>
-          <span>{s.timeline}</span>
+          <span>{showcase.timeline}</span>
         </div>
       </div>
     )
   }
 
-  if (s.type === 'codeExample') {
+  if (showcase.type === 'codeExample') {
     return (
       <div className="showcase-code">
-        <p className="showcase-title">{s.title}</p>
+        <p className="showcase-title">{showcase.title}</p>
         <div className="code-snippet">
           <div className="code-block">
             <span className="code-label">Before</span>
-            <pre><code>{s.before}</code></pre>
+            <pre><code>{showcase.before}</code></pre>
           </div>
           <div className="code-block">
             <span className="code-label">After</span>
-            <pre><code>{s.after}</code></pre>
+            <pre><code>{showcase.after}</code></pre>
           </div>
         </div>
       </div>
@@ -671,13 +775,15 @@ function ShowcasePanel({ showcase }: { showcase: typeof etiqaDeepDives[number]['
 
   return null
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
-function DeepDiveCard({ dive }: { dive: typeof etiqaDeepDives[number] }) {
+function DeepDiveCard({ dive, index }: { dive: DeepDive; index: number }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <article className={`deep-dive ${open ? 'open' : ''}`}>
+    <article
+      className={`deep-dive ${open ? 'open' : ''}`}
+      style={{ animationDelay: `${index * 80}ms` }}
+    >
       <button className="deep-dive-trigger" onClick={() => setOpen(!open)} aria-expanded={open}>
         <div className="deep-dive-left">
           <span className="deep-dive-metric">{dive.metric}</span>
@@ -719,7 +825,7 @@ function DeepDiveCard({ dive }: { dive: typeof etiqaDeepDives[number] }) {
 
 function Experience() {
   return (
-    <section className="section" id="experience">
+    <section className="section" id="experience" aria-labelledby="experience-heading">
       <SectionHeader
         label="Experience"
         title="Where I've worked"
@@ -736,8 +842,8 @@ function Experience() {
         </div>
 
         <div className="deep-dives">
-          {etiqaDeepDives.map((dive) => (
-            <DeepDiveCard key={dive.id} dive={dive} />
+          {etiqaDeepDives.map((dive, index) => (
+            <DeepDiveCard key={dive.id} dive={dive} index={index} />
           ))}
         </div>
       </div>
@@ -801,7 +907,7 @@ function ArchitectureDiagram({ nodes }: { nodes: { label: string; x: number; y: 
   )
 }
 
-function ProjectCard({ project }: { project: typeof projects[number] }) {
+function ProjectCard({ project }: { project: Project }) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -840,7 +946,7 @@ function ProjectCard({ project }: { project: typeof projects[number] }) {
 
 function Projects() {
   return (
-    <section className="section" id="projects">
+    <section className="section" id="projects" aria-labelledby="projects-heading">
       <SectionHeader
         label="Projects"
         title="Things I've built"
@@ -857,15 +963,26 @@ function Projects() {
 
 function Skills() {
   return (
-    <section className="section" id="skills">
+    <section className="section" id="skills" aria-labelledby="skills-heading">
       <SectionHeader label="Skills" title="What I work with" />
       <div className="skills-categories">
         {skillCategories.map((cat) => (
           <div key={cat.name} className="skill-category reveal">
             <h3 className="skill-cat-name">{cat.name}</h3>
-            <div className="skill-tags">
+            <div className="skill-bars">
               {cat.skills.map((s) => (
-                <span key={s} className="skill-tag">{s}</span>
+                <div key={s.name} className="skill-bar-item">
+                  <div className="skill-bar-header">
+                    <span className="skill-bar-name">{s.name}</span>
+                    <span className="skill-bar-pct">{s.level}%</span>
+                  </div>
+                  <div className="skill-bar-track">
+                    <div
+                      className="skill-bar-fill"
+                      style={{ width: `${s.level}%` }}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -877,7 +994,7 @@ function Skills() {
 
 function Education() {
   return (
-    <section className="section" id="education">
+    <section className="section" id="education" aria-labelledby="education-heading">
       <SectionHeader label="Education" title="Background" />
       <div className="education-card reveal">
         <div className="education-main">
@@ -903,7 +1020,7 @@ function Education() {
 
 function Contact() {
   return (
-    <section className="section" id="contact">
+    <section className="section" id="contact" aria-labelledby="contact-heading">
       <SectionHeader label="Contact" title="Get in touch" />
       <ul className="contact-list">
         <li>
@@ -926,6 +1043,12 @@ function Contact() {
             github.com/ngkaizheng
           </a>
         </li>
+        <li>
+          <a href={linkedInUrl} target="_blank" rel="noreferrer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            linkedin.com/in/ngkaizheng
+          </a>
+        </li>
       </ul>
       <a className="btn-primary contact-btn" href={resumeHref} download>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -944,18 +1067,52 @@ function Footer() {
   )
 }
 
+/* ─── Loading Skeleton ─────────────────────────────────── */
+
+function LoadingSkeleton() {
+  return (
+    <div className="skeleton-screen" aria-label="Loading portfolio">
+      <div className="skeleton-nav">
+        <div className="skeleton-block skeleton-line-short" />
+        <div className="skeleton-block skeleton-line-short" />
+        <div className="skeleton-block skeleton-line-short" />
+      </div>
+      <div className="skeleton-hero">
+        <div className="skeleton-block skeleton-badge" />
+        <div className="skeleton-block skeleton-title" />
+        <div className="skeleton-block skeleton-subtitle" />
+        <div className="skeleton-block skeleton-paragraph" />
+        <div className="skeleton-stats">
+          <div className="skeleton-block skeleton-stat" />
+          <div className="skeleton-block skeleton-stat" />
+          <div className="skeleton-block skeleton-stat" />
+          <div className="skeleton-block skeleton-stat" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── App ───────────────────────────────────────────────── */
 
 function App() {
+  const [loading, setLoading] = useState(true)
   useReveal()
   const { active, scrollTo } = useActiveSection()
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 600)
+    return () => clearTimeout(timer)
+  }, [])
+
+  if (loading) return <LoadingSkeleton />
 
   return (
     <div className="layout">
       <SkipToContent />
       <MobileMenu active={active} scrollTo={scrollTo} />
       <SideNav active={active} scrollTo={scrollTo} />
-      <main className="page" id="main-content">
+      <main className="page" id="main-content" role="main">
         <Hero scrollTo={scrollTo} />
         <Experience />
         <Projects />

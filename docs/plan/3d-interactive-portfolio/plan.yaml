@@ -1,0 +1,42 @@
+name: 3d-interactive-portfolio
+description: Transform portfolio from scroll-based site to immersive 3D interactive experience
+
+# 3D Interactive Portfolio Roadmap
+
+## Goal
+
+Transform the portfolio from a traditional scroll-based site into an immersive 3D interactive experience.
+
+## Phase 1: Foundation (3D Ready)
+
+- [ ] Add Three.js / React Three Fiber dependency
+- [ ] Create 3D scene wrapper component
+- [ ] Add camera controls (orbit, zoom, pan)
+- [ ] Implement responsive 3D viewport
+
+## Phase 2: 3D Elements
+
+- [ ] **Hero:** 3D particle system with interactive mouse tracking
+- [ ] **Experience:** Floating 3D cards for each project/job
+- [ ] **Skills:** 3D bar chart or radar visualization
+- [ ] **Projects:** Rotating 3D project cards with depth effect
+
+## Phase 3: Interactions
+
+- [ ] Scroll-triggered camera movements
+- [ ] Hover effects on 3D elements (scale, glow, rotation)
+- [ ] Click-to-explore project details in 3D space
+- [ ] Ambient particles floating in background
+
+## Phase 4: Polish
+
+- [ ] Performance optimization (LOD, instancing)
+- [ ] Fallback for low-end devices (2D version)
+- [ ] Loading screen with 3D animation
+- [ ] Mobile touch controls
+
+## Tech Stack
+
+- **3D Engine:** Three.js via React Three Fiber
+- **Animations:** GSAP for scroll-triggered animations
+- **Post-processing:** Bloom, ambient occlusion effects
