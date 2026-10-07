@@ -15,7 +15,7 @@ describe('App', () => {
     const resumeLinks = screen.getAllByRole('link', { name: /Download Resume/i })
     expect(resumeLinks.length).toBeGreaterThan(0)
     for (const link of resumeLinks) {
-      expect(link).toHaveAttribute('href', '/resume/NgKaiZheng_Resume.pdf')
+      expect(link).toHaveAttribute('href', `${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf`)
       expect(link).toHaveAttribute('download')
     }
   })

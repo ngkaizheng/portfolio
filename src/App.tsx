@@ -4,7 +4,9 @@ import './App.css'
 const Scene = lazy(() => import('./components/three/Scene'))
 const SkillsScene = lazy(() => import('./components/three/SkillsScene'))
 
-const resumeHref = '/resume/NgKaiZheng_Resume.pdf'
+// BASE_URL keeps the canonical resume path correct under the GitHub Pages
+// project subpath (/portfolio/) without hard-coding the deployment root.
+const resumeHref = `${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf`
 const linkedInUrl = 'https://www.linkedin.com/in/kai-zheng-ng-tech'
 
 /* ─── Types ────────────────────────────────────────────── */

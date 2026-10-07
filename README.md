@@ -1,11 +1,11 @@
 # Ng Kai Zheng — Portfolio
 
-Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at [ngkaizheng.online](https://ngkaizheng.online).
+Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at [ngkaizheng.github.io/portfolio](https://ngkaizheng.github.io/portfolio/).
 
 ## Content Source
 
 - Portfolio copy is based on the resume provided in this repository.
-- Canonical public resume link: `/resume/NgKaiZheng_Resume.pdf`
+- Canonical public resume path: `/portfolio/resume/NgKaiZheng_Resume.pdf` (built as `${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf`, defined in `src/App.tsx`)
 - Public resume file location: `public/resume/NgKaiZheng_Resume.pdf`
 
 ## Sections
@@ -37,9 +37,11 @@ Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at
 
 ## GitHub Pages
 
-- Deployment workflow: `.github/workflows/pages.yml`
-- Custom domain: `ngkaizheng.online` (from `public/CNAME`)
-- Root-relative links are used for public assets.
+- Deployment workflow: `.github/workflows/pages.yml` (builds `dist/`, deploys via `actions/deploy-pages`)
+- Live URL: `https://ngkaizheng.github.io/portfolio/` (project page, **not** a custom domain)
+- `vite.config.ts` sets `base: '/portfolio/'` so built asset URLs resolve under the repo subpath. Changing the hosting path means changing that one value; the resume link follows it automatically via `import.meta.env.BASE_URL`.
+- No `public/CNAME` file exists on purpose: a CNAME would re-bind the Pages site to a custom domain and redirect the `github.io/portfolio/` URL away.
+- If HTTPS/custom domain is added later, add `public/CNAME` back **and** set `base` to `'/'`.
 
 ## Tech Stack
 
