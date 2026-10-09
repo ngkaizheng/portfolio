@@ -1,40 +1,31 @@
-# AGENTS.md — Portfolio Resume Update
+# AGENTS.md — Portfolio (v2: Experimental 3D Redesign)
 
-> **Self-sufficient governance baseline.** This document replaces `docs/plan/20260426-portfolio-resume-retry/plan.yaml` and `docs/PRD.yaml`. All execution context lives here.
+> Governance baseline for agents working on this repo. v1 (resume content update) is done; v2 replaces the whole visual design with an experimental WebGL site. Design details live in `README.md`.
 
 ---
 
 ## 1. Role & Context
 
-You are a **portfolio delivery agent** for a personal portfolio site (React + TypeScript + Vite, deployed via GitHub Pages). Your job is to:
+Personal portfolio for Ng Kai Zheng (React + TypeScript + Vite, GitHub Pages project page). Audience: hiring managers for software engineering roles in Singapore. The site must impress in the first seconds **and** stay scannable: name, role, key metrics and resume download within 30 seconds.
 
-- Replace template-like portfolio copy with **resume-faithful content**
-- Wire the primary resume download to a **canonical path**
-- Validate **build and Pages compatibility**
-- Prepare a **push-ready change set** with constrained scope
-
-**Audience:** Hiring managers viewing the portfolio; the maintainer (you) pushing changes.
-
-**Current delivery state:** `draft` — no implementation has started.
+**Direction (owner-approved):** experimental / Awwwards-style, pure 3D + architecture animations, no video. Full redesign allowed.
 
 ---
 
 ## 2. Scope
 
-### In Scope (only these files may change)
+### In Scope
 
-| File | Purpose |
-|---|---|
-| `src/App.tsx` | Content constants, section copy, CTA href targets |
-| `src/App.css` | Density/readability adjustments only |
-| `public/resume/NgKaiZheng_Resume.pdf` | Canonical downloadable resume artifact |
-| `README.md` | Maintenance and deployment notes |
+- Anything under `src/` (components, WebGL layer, styles, tests)
+- `index.html`, `package.json` / `package-lock.json` (dependencies), `vite.config.ts`
+- `public/resume/NgKaiZheng_Resume.pdf`
+- `README.md`, `AGENTS.md`
 
-### Out of Scope
+### Out of Scope (ask first)
 
-- Visual redesign or theme overhaul
-- New pages, routing, or backend services
-- Any file not listed in In Scope
+- Backend services, analytics, trackers, third-party embeds
+- Video assets (owner chose pure 3D)
+- Changing hosting (custom domain, `base` path) or the Pages workflow
 
 ---
 
@@ -42,124 +33,66 @@ You are a **portfolio delivery agent** for a personal portfolio site (React + Ty
 
 ### R1 — Resume-Faithful Content
 
-Portfolio content must reflect **only** facts from the resume source. No invented claims, no template filler.
-
-- **Source of truth:** `resume_tmp/resume_extracted.txt`
-- **Verification:** Cross-check every content change against `resume_extracted.txt` before finalizing.
+All copy lives in `src/data/content.ts` and reflects **only** facts from the resume (`public/resume/NgKaiZheng_Resume.pdf`). No invented claims, metrics, skill-level percentages or filler. Diagram labels may only name things the resume already names.
 
 ### R2 — Canonical Resume Download Path
 
-All resume CTA links must resolve to exactly:
+Every resume CTA uses `resumeHref` from `src/data/content.ts`:
 
 ```
-/resume/NgKaiZheng_Resume.pdf
+${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf   →   /portfolio/resume/NgKaiZheng_Resume.pdf
 ```
 
-- **Why root-relative:** Custom-domain GitHub Pages deployment requires stable root-relative paths. Relative paths break across routes; external hosts add drift risk.
-- **Verification:** Inspect built `dist/` output — confirm `resume/NgKaiZheng_Resume.pdf` exists and all CTA hrefs match the contract.
+Links carry the `download` attribute. Never hard-code another path.
 
-### R3 — Build & Pages Compatibility
+### R3 — Build, Tests & Pages Compatibility
 
-`npm run build` must exit 0 and output paths must remain root-compatible.
+- `npm run lint`, `npm run test`, `npm run build` all exit 0
+- `dist/resume/NgKaiZheng_Resume.pdf` exists after build
+- Asset URLs respect `base: '/portfolio/'`
 
-- **Verification:**
-  1. `npm run build` exits with code 0
-  2. `dist/resume/NgKaiZheng_Resume.pdf` exists
-  3. No repo-name path prefix in links (custom domain compatibility)
-  4. Mobile and desktop views remain readable (no layout regressions)
+### R4 — Performance & Accessibility Guardrails
 
-### R4 — Push-Ready Constrained Scope
-
-Final change set must be limited to the 4 in-scope files only.
-
-- **Verification:** `git diff --name-only` shows only `src/App.tsx`, `src/App.css`, `public/resume/NgKaiZheng_Resume.pdf`, `README.md`.
+- Content is real HTML rendered immediately; the WebGL bundle is lazy-loaded and never blocks reading
+- `prefers-reduced-motion` disables smooth scroll, the horizontal pin and CSS animation loops
+- No WebGL / WebGL error → CSS fallback; low-power devices get fewer particles and no post-processing
+- Semantic headings per section; decorative layers are `aria-hidden`
+- Mobile (≥ 320px) and desktop layouts have no horizontal overflow
 
 ---
 
-## 4. Task Breakdown
+## 4. Boundaries (What NOT To Do)
 
-| ID | Title | Agent | Wave | Depends On | Verification |
-|---|---|---|---|---|---|
-| **T1** | Implement Resume Content & Canonical Download Link | implementer | 1 | — | Build compiles; hero/contact CTAs use canonical path; mobile/desktop readable |
-| **T2** | Validate Build & Pages Compatibility | browser-tester | 2 | T1 | `npm run build` exits 0; dist contains resume asset; links root-compatible |
-| **T3** | Update Maintenance Documentation | docs-writer | 2 | T1 | README documents canonical path + refresh steps + Pages caveat |
-| **T4** | Prepare Push-Ready Change Set | devops | 3 | T2, T3 | Only expected files changed; validation evidence attached; commit prepared |
-
-### Wave Execution
-
-```
-Wave 1: T1 (implementer)
-Wave 2: T2 (browser-tester) + T3 (docs-writer) — parallel
-Wave 3: T4 (devops) — after T2+T3 complete
-```
+1. **Do not** introduce non-resume claims or invented facts.
+2. **Do not** hard-code the resume path or drop the `download` attribute.
+3. **Do not** block content behind the preloader or WebGL loading.
+4. **Do not** load fonts or scripts from third-party CDNs at runtime (fonts are self-hosted via Fontsource).
+5. **Do not** push to `main` directly; redesign work happens on a feature branch.
 
 ---
 
-## 5. Boundaries (What NOT To Do)
+## 5. Definition Of Done
 
-1. **Do not** modify any file outside the 4 in-scope files.
-2. **Do not** introduce non-resume claims or invented facts.
-3. **Do not** change the visual design system (colors, fonts, layout structure).
-4. **Do not** add new pages, routes, or backend services.
-5. **Do not** use relative paths for the resume link — always root-relative `/resume/NgKaiZheng_Resume.pdf`.
-6. **Do not** push until T2 validation evidence is attached and T4 scope gate passes.
-7. **Do not** finalize README without cross-checking against T1/T2 outputs.
-
----
-
-## 6. Risks & Mitigations
-
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| Resume link works locally but fails on Pages due to asset/path mismatch | medium | high | Validate production `dist/` output and canonical root-relative URL contract |
-| Resume content update causes text overflow on mobile | medium | medium | Keep CSS changes minimal; verify responsive breakpoints during T2 |
-| Content drift introduces non-resume claims | low | high | Cross-check copy against `resume_extracted.txt` before finalizing |
-| Unrelated files appear in diff | medium | medium | Run file-level diff gate in T4; split/unstage unrelated changes |
-| Missing validation evidence before push | low | high | Block T4 completion until T2 verification checklist is satisfied |
+- [ ] Copy matches the resume (cross-checked against `src/data/content.ts`)
+- [ ] All resume CTAs use `resumeHref` with `download`
+- [ ] `npm run lint`, `npm run test`, `npm run build` exit 0
+- [ ] Desktop (1440×900) and mobile (390×844) screenshots reviewed: no overflow, text readable over the particle layer
+- [ ] Reduced-motion and no-WebGL paths still render all content
+- [ ] `README.md` reflects the current design and structure
 
 ---
 
-## 7. Key Decisions (ADRs)
-
-### ADR-001: Root-Relative Canonical Resume Path
-
-- **Decision:** Use `/resume/NgKaiZheng_Resume.pdf` (root-relative)
-- **Rationale:** Keeps links stable for custom-domain GitHub Pages deployment
-- **Alternatives considered:** Relative path per section (breaks across routes), external file host (adds drift risk)
-- **Consequences:** Single path contract, lower link drift risk
-
-### ADR-002: Build Validation as Pre-Push Gate
-
-- **Decision:** Require successful `npm run build` and Pages-compatible path validation before push
-- **Rationale:** Prevents avoidable deployment regressions
-- **Alternatives considered:** Manual browser-only check (not reproducible)
-- **Consequences:** Fast confidence signal, reproducible validation
-
----
-
-## 8. Definition Of Done
-
-- [ ] `src/App.tsx` contains resume-derived identity/contact/experience/project facts
-- [ ] All resume CTA hrefs are exactly `/resume/NgKaiZheng_Resume.pdf`
-- [ ] `npm run build` exits 0
-- [ ] `dist/resume/NgKaiZheng_Resume.pdf` exists
-- [ ] Mobile and desktop views have no layout regressions
-- [ ] `README.md` documents canonical path, refresh steps, and Pages caveat
-- [ ] `git diff --name-only` shows only the 4 in-scope files
-- [ ] No unresolved blockers in push-ready checklist
-
----
-
-## 9. Error Codes
+## 6. Error Codes
 
 | Code | Meaning |
 |---|---|
-| `ERR_RESUME_LINK_001` | Resume CTA does not use canonical path `/resume/NgKaiZheng_Resume.pdf` |
-| `ERR_BUILD_001` | Build validation failed or Pages path compatibility could not be confirmed |
+| `ERR_RESUME_LINK_001` | Resume CTA does not use `resumeHref` / canonical path |
+| `ERR_BUILD_001` | Lint, test or build failed, or Pages path compatibility could not be confirmed |
+| `ERR_CONTENT_001` | Copy contains a claim not found in the resume |
 
 ---
 
-*Last updated: 2026-04-26 | Status: draft | Version: 1.0.0*
+*Last updated: 2026-10-09 | Status: v2 redesign in review | Version: 2.0.0*
 
 <!-- caveman-begin -->
 Respond terse like smart caveman. All technical substance stay. Only fluff die.

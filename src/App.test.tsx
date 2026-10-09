@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import App from './App'
+import { caseStudies, projects, skillCategories } from './data/content'
 
 describe('App', () => {
   it('renders hero name and contact info', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Ng Kai Zheng' })).toBeInTheDocument()
     expect(screen.getAllByText(/kaizheng\.tech@gmail\.com/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Johor, Malaysia/).length).toBeGreaterThan(0)
   })
@@ -20,6 +21,21 @@ describe('App', () => {
     }
   })
 
+  it('renders every experience case study', () => {
+    render(<App />)
+    for (const study of caseStudies) {
+      expect(screen.getByRole('heading', { level: 3, name: study.title })).toBeInTheDocument()
+    }
+    expect(screen.getByText('AIO Synergy Sdn Bhd')).toBeInTheDocument()
+  })
+
+  it('renders projects with labelled architecture diagrams', () => {
+    render(<App />)
+    for (const project of projects) {
+      expect(screen.getByRole('img', { name: new RegExp(`^${project.name} architecture`) })).toBeInTheDocument()
+    }
+  })
+
   it('renders education section', () => {
     render(<App />)
     expect(screen.getAllByText(/Bachelor of Computer Science/i).length).toBeGreaterThan(0)
@@ -28,7 +44,8 @@ describe('App', () => {
 
   it('renders skills section', () => {
     render(<App />)
-    expect(screen.getAllByText(/Languages/).length).toBeGreaterThan(0)
-    expect(screen.getAllByText(/Backend/).length).toBeGreaterThan(0)
+    for (const category of skillCategories) {
+      expect(screen.getByRole('heading', { level: 3, name: category.name })).toBeInTheDocument()
+    }
   })
 })
