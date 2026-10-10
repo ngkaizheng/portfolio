@@ -678,7 +678,7 @@ a:hover .roll-ch > span:last-child,
   margin: 0;
   font-family: var(--f-display);
   font-weight: 800;
-  font-size: clamp(56px, 13.6vw, 236px);
+  font-size: clamp(52px, 10.4vw, 176px);
   line-height: 0.8;
   letter-spacing: -0.045em;
   text-transform: uppercase;
@@ -739,7 +739,10 @@ a:hover .roll-ch > span:last-child,
   margin: 0;
   max-width: 46ch;
   font-size: 15px;
-  color: var(--fg-2);
+  color: var(--fg);
+  text-shadow:
+    0 0 10px var(--bg),
+    0 0 18px var(--bg);
 }
 
 .hero-stats {
@@ -829,22 +832,16 @@ a:hover .roll-ch > span:last-child,
   overflow: hidden;
   font-family: var(--f-display);
   font-weight: 800;
-  font-size: clamp(48px, 9vw, 140px);
-  line-height: 1.05;
+  font-size: clamp(30px, 5vw, 80px);
+  line-height: 1.1;
   text-transform: uppercase;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 
 .marquee-lane {
   display: flex;
   width: max-content;
-  animation: marquee 42s linear infinite;
-}
-
-.marquee-lane.is-reverse {
-  animation-direction: reverse;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(236, 235, 228, 0.6);
+  animation: marquee 60s linear infinite;
 }
 
 .marquee-row {
@@ -865,7 +862,6 @@ a:hover .roll-ch > span:last-child,
   font-style: normal;
   font-size: 0.45em;
   color: var(--accent);
-  -webkit-text-stroke: 0;
 }
 
 @keyframes marquee {
@@ -1038,14 +1034,22 @@ a:hover .roll-ch > span:last-child,
   font-family: var(--f-mono);
   font-size: 11px;
   text-transform: uppercase;
-  color: var(--fg-3);
+  color: var(--fg-2);
 }
 
 .case-psr dd {
   margin: 0;
-  font-size: 14.5px;
+  font-size: 15px;
   line-height: 1.55;
-  color: var(--fg-2);
+  color: var(--fg);
+}
+
+/* Keeps copy legible where it sits over bright particles. */
+.case-psr dt,
+.case-psr dd {
+  text-shadow:
+    0 0 10px var(--bg),
+    0 0 18px var(--bg);
 }
 
 .case-psr .is-result dt {
@@ -1053,7 +1057,7 @@ a:hover .roll-ch > span:last-child,
 }
 
 .case-psr .is-result dd {
-  color: var(--fg);
+  font-weight: 500;
 }
 
 .case-visual {
@@ -2958,7 +2962,7 @@ a:hover .roll-ch > span:last-child,
   }
 
   .hero-name {
-    font-size: 15.4vw;
+    font-size: 13vw;
   }
 
   .display {

@@ -14,7 +14,7 @@ export function Marquee() {
   useEffect(
     () =>
       onScroll((state) => {
-        const skew = Math.max(-12, Math.min(12, state.velocity * -0.35))
+        const skew = Math.max(-6, Math.min(6, state.velocity * -0.2))
         ref.current?.style.setProperty('--skew', `${skew.toFixed(2)}deg`)
       }),
     [],
@@ -34,10 +34,6 @@ export function Marquee() {
   return (
     <div className="marquee" ref={ref} aria-hidden="true">
       <div className="marquee-lane">
-        {row}
-        {row}
-      </div>
-      <div className="marquee-lane is-reverse">
         {row}
         {row}
       </div>

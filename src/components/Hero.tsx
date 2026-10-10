@@ -18,8 +18,8 @@ function Scramble({ words, active }: { words: string[]; active: boolean }) {
 
     const run = (from: string, to: string) => {
       const queue = Array.from({ length: Math.max(from.length, to.length) }, (_, i) => {
-        const start = Math.floor(Math.random() * 10)
-        return { from: from[i] ?? '', to: to[i] ?? '', start, end: start + 10 + Math.floor(Math.random() * 10) + i * 0.5 }
+        const start = Math.floor(Math.random() * 4)
+        return { from: from[i] ?? '', to: to[i] ?? '', start, end: start + 4 + Math.floor(Math.random() * 4) + i * 0.25 }
       })
       let frame = 0
       const tick = () => {
@@ -38,7 +38,7 @@ function Scramble({ words, active }: { words: string[]; active: boolean }) {
         setText(out)
         frame++
         if (done < queue.length) raf = requestAnimationFrame(tick)
-        else timer = setTimeout(next, 2600)
+        else timer = setTimeout(next, 3600)
       }
       tick()
     }
