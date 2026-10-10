@@ -10,7 +10,11 @@ const HORIZONTAL_QUERY = '(min-width: 1024px) and (min-height: 640px) and (prefe
 
 function CasePanel({ study, index }: { study: CaseStudy; index: number }) {
   return (
-    <article className="panel case" aria-labelledby={`case-${study.id}`}>
+    <article
+      className="panel case"
+      aria-labelledby={`case-${study.id}`}
+      data-scene={study.showcase.type === 'scene' ? study.showcase.scene : 'network'}
+    >
       <div className="case-copy">
         <p className="case-index">
           <span>{pad(index + 1)}</span> / {pad(caseStudies.length)}
@@ -87,7 +91,7 @@ export default function Experience() {
     <section id="experience" className="exp" aria-labelledby="experience-heading">
       <div className="exp-pin" ref={pin}>
         <div className="exp-track" ref={track}>
-          <header className="panel exp-intro">
+          <header className="panel exp-intro" data-scene="network">
             <SectionLabel index="01" label="Experience" />
             <SplitHeading id="experience-heading" lines={['Selected', 'impact']} />
             <div className="exp-company" data-reveal>
@@ -108,7 +112,7 @@ export default function Experience() {
             <CasePanel key={study.id} study={study} index={i} />
           ))}
 
-          <article className="panel exp-outro" aria-labelledby="internship-heading">
+          <article className="panel exp-outro" aria-labelledby="internship-heading" data-scene="network">
             <p className="case-index">Previously</p>
             <h3 id="internship-heading" className="exp-outro-company">
               {internship.company}

@@ -15,6 +15,16 @@ import { initScroll } from './lib/scroll'
 // three.js and the post-processing stack load after first paint.
 const World = lazy(() => import('./components/gl/World'))
 
+// Shown when WebGL is missing or the scene crashes; tells CSS that no
+// particle scenes will draw (scene frames then list their labels).
+function WorldFallback() {
+  useEffect(() => {
+    document.documentElement.classList.add('no-webgl')
+    return () => document.documentElement.classList.remove('no-webgl')
+  }, [])
+  return <div className="world-fallback" />
+}
+
 function App() {
   const [ready, setReady] = useState(false)
   const [webgl] = useState(hasWebGL)
@@ -36,7 +46,7 @@ function App() {
     }
   }, [])
 
-  const fallback = <div className="world-fallback" />
+  const fallback = <WorldFallback />
 
   return (
     <>

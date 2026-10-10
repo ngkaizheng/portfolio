@@ -1228,6 +1228,137 @@ a:hover .roll-ch > span:last-child,
   animation-play-state: paused !important;
 }
 
+/* Particle scene frame: the swarm draws the diagram behind it */
+
+.fig-scene {
+  background: transparent;
+  border-style: dashed;
+}
+
+.scene-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
+}
+
+.scene-stage.scene-talk {
+  aspect-ratio: 3 / 2;
+}
+
+.scene-corner,
+.scene-stage::before,
+.scene-stage::after {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--accent);
+}
+
+.scene-stage::before {
+  content: '';
+  top: 0;
+  left: 0;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.scene-stage::after {
+  content: '';
+  right: 0;
+  bottom: 0;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.scene-corner {
+  top: 0;
+  right: 0;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.scene-labels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.scene-labels li {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(var(--shift, -50%), 0);
+  padding: 4px 9px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: rgba(5, 5, 5, 0.72);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--fg);
+  opacity: 0;
+  transition: opacity 0.6s calc(var(--i) * 0.15s + 0.4s);
+}
+
+.scene-labels li::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 1px;
+}
+
+.is-seen .scene-labels li {
+  opacity: 1;
+}
+
+.fig-live::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+  vertical-align: 1px;
+}
+
+/* Without WebGL there is no swarm to draw the scene: list the labels. */
+.no-webgl .scene-stage {
+  aspect-ratio: auto;
+  min-height: 0;
+  padding: 18px;
+}
+
+.no-webgl .scene-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.no-webgl .scene-labels li {
+  position: static;
+  transform: none;
+  opacity: 1;
+}
+
+.no-webgl .fig-live {
+  display: none;
+}
+
+@container (max-width: 420px) {
+  .scene-labels li {
+    font-size: 9.5px;
+    padding: 3px 7px;
+  }
+}
+
 /* Node boxes shared by the diagrams */
 .pipe-nodes li,
 .flow-seq li,

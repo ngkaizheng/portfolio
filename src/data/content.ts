@@ -70,7 +70,21 @@ export interface CodeShowcase {
   after: string
 }
 
-export type Showcase = PipelineShowcase | CompareShowcase | FlowsShowcase | ModulesShowcase | CodeShowcase
+// Drawn by the particle swarm itself rather than a DOM diagram.
+export interface SceneShowcase {
+  type: 'scene'
+  scene: 'gateway' | 'observe' | 'talk'
+  title: string
+  labels: string[]
+}
+
+export type Showcase =
+  | PipelineShowcase
+  | CompareShowcase
+  | FlowsShowcase
+  | ModulesShowcase
+  | CodeShowcase
+  | SceneShowcase
 
 export interface CaseStudy {
   id: string
@@ -218,6 +232,58 @@ export const caseStudies: CaseStudy[] = [
       title: 'AI Screening Pipeline',
       stages: ['Resume Input', 'AI Analysis', 'Match Score', 'Red Flags', 'Summary'],
       description: 'Every candidate gets a match score, red flag check, and summary',
+    },
+  },
+  {
+    id: 'api-gateway',
+    title: 'API Gateway (Reverse Proxy)',
+    subtitle: '.NET gateway in front of internal services',
+    problem: 'Requests needed one controlled entry point for routing, rate limiting, and TLS.',
+    solution:
+      'Built a .NET-based gateway repository that handles routing, token-bucket rate limiting, and TLS termination.',
+    result: 'A single gateway handles routing, rate limiting, and TLS termination for incoming traffic.',
+    tech: ['.NET', 'Reverse Proxy', 'Rate Limiting', 'TLS'],
+    metric: 'TLS',
+    metricLabel: 'terminated at the edge',
+    showcase: {
+      type: 'scene',
+      scene: 'gateway',
+      title: 'Gateway Traffic Flow',
+      labels: ['Token-bucket rate limiting', 'TLS termination', 'Routing'],
+    },
+  },
+  {
+    id: 'observability',
+    title: 'Observability',
+    subtitle: 'Azure Application Insights',
+    problem: 'Application health needed to be visible in one place.',
+    solution: 'Configured Azure Application Insights for centralized logging and monitoring of application health.',
+    result: 'Centralized logs and health monitoring in Azure Application Insights.',
+    tech: ['Azure', 'Application Insights', 'Logging', 'Monitoring'],
+    metric: 'Logs',
+    metricLabel: 'centralized',
+    showcase: {
+      type: 'scene',
+      scene: 'observe',
+      title: 'Centralized Monitoring',
+      labels: ['Application health', 'Centralized logging', 'Azure Application Insights'],
+    },
+  },
+  {
+    id: 'domain-design',
+    title: 'System Architecture & Design',
+    subtitle: 'With the Customer Data Hub team',
+    problem: 'Employee data needed a single source of truth across teams.',
+    solution: 'Collaborated with the Customer Data Hub team to define domain boundaries and ERDs.',
+    result: 'Established a single source of truth for employee data.',
+    tech: ['Domain-Driven Design', 'ERD', 'System Design'],
+    metric: 'ERD',
+    metricLabel: 'domain boundaries',
+    showcase: {
+      type: 'scene',
+      scene: 'talk',
+      title: 'Domain Design Session',
+      labels: ['Customer Data Hub team', 'Domain boundaries & ERDs', 'Single source of truth'],
     },
   },
   {

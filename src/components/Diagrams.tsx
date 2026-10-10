@@ -6,6 +6,7 @@ import type {
   ModulesShowcase,
   PipelineShowcase,
   Project,
+  SceneShowcase,
   Showcase,
 } from '../data/content'
 import { pad, useInView } from '../lib/hooks'
@@ -232,6 +233,48 @@ function Code({ before, after }: CodeShowcase) {
   )
 }
 
+// Where each label floats over its particle scene, as % of the frame.
+const SCENE_LABEL_POS: Record<SceneShowcase['scene'], [number, number][]> = {
+  gateway: [
+    [44, 4],
+    [36, 84],
+    [98, 12],
+  ],
+  observe: [
+    [50, 2],
+    [10, 70],
+    [50, 94],
+  ],
+  talk: [
+    [84, 8],
+    [50, 64],
+    [50, 96],
+  ],
+}
+
+// The swarm positions itself over [data-scene-anchor] (see gl/scene.ts);
+// this frame only carries the caption and labels.
+function SceneFrame({ scene, labels }: SceneShowcase) {
+  const pos = SCENE_LABEL_POS[scene]
+  return (
+    <div className={`scene-stage scene-${scene}`} data-scene-anchor>
+      <span className="scene-corner" aria-hidden="true" />
+      <ul className="scene-labels">
+        {labels.map((label, i) => {
+          const [x, y] = pos[i] ?? [50, 50]
+          // Labels near an edge grow inward so they never leave the frame.
+          const shift = x < 30 ? '0%' : x > 70 ? '-100%' : '-50%'
+          return (
+            <li key={label} style={vars({ '--x': `${x}%`, '--y': `${y}%`, '--shift': shift, '--i': i })}>
+              {label}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
 function renderShowcase(showcase: Showcase) {
   switch (showcase.type) {
     case 'pipeline':
@@ -244,6 +287,8 @@ function renderShowcase(showcase: Showcase) {
       return <Modules {...showcase} />
     case 'code':
       return <Code {...showcase} />
+    case 'scene':
+      return <SceneFrame {...showcase} />
   }
 }
 
@@ -257,6 +302,11 @@ export function ShowcaseFigure({ showcase, index }: { showcase: Showcase; index:
       </figcaption>
       <div className="fig-body">{renderShowcase(showcase)}</div>
       {showcase.type === 'pipeline' && <p className="fig-note">{showcase.description}</p>}
+      {showcase.type === 'scene' && (
+        <p className="fig-note fig-live" aria-hidden="true">
+          Live particle scene
+        </p>
+      )}
     </figure>
   )
 }
