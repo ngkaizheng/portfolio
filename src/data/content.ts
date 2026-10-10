@@ -1,6 +1,8 @@
-// Every fact on the site lives here and is taken from the resume
-// (public/resume/NgKaiZheng_Resume.pdf). Presentation hints such as
-// diagram variants or edge lists only describe how a fact is drawn.
+// Every fact on the site lives here. It comes from the resume
+// (public/resume/NgKaiZheng_Resume.pdf) or from the owner directly: the
+// resume is trimmed to fit its page, so some details and examples only
+// appear here. Presentation hints such as diagram variants or edge lists
+// only describe how a fact is drawn.
 
 // BASE_URL keeps the canonical resume path correct under the GitHub Pages
 // project subpath (/portfolio/) without hard-coding the deployment root.
@@ -12,9 +14,9 @@ export const profile = {
   role: 'Full-Stack Software Engineer',
   roles: ['Full-Stack Software Engineer', '.NET + React', 'AI Agent Orchestration'],
   tagline:
-    '1 year building enterprise-scale systems on Azure. Modernized legacy platforms serving 7,000+ internal users and architected AI-driven workflow engines. Ready to relocate to Singapore.',
+    '1 year of experience building enterprise-scale systems on Azure. Modernized legacy platforms serving 7,000+ internal users and architected an AI-driven workflow engine.',
   location: 'Johor, Malaysia',
-  relocation: 'Ready to relocate to Singapore',
+  relocation: 'Malaysian citizen, ready to relocate to Singapore',
   email: 'kaizheng.tech@gmail.com',
   phone: '+60 14-6850705',
   phoneHref: 'tel:+60146850705',
@@ -26,8 +28,8 @@ export const profile = {
 
 export const heroStats = [
   { value: 60, suffix: '%', decimals: 0, label: 'Team productivity boost' },
-  { value: 50, suffix: '%', decimals: 0, label: 'Faster delivery' },
-  { value: 7, suffix: 'K+', decimals: 0, label: 'Users served' },
+  { value: 50, suffix: '%', decimals: 0, label: 'Shorter lead time' },
+  { value: 7, suffix: 'K+', decimals: 0, label: 'Internal users' },
   { value: 4, suffix: '', decimals: 1, label: 'CGPA at UTM' },
 ]
 
@@ -63,11 +65,13 @@ export interface ModulesShowcase {
   timeline: string
 }
 
-export interface CodeShowcase {
-  type: 'code'
+export interface AbacShowcase {
+  type: 'abac'
   title: string
-  before: string
-  after: string
+  inputs: string[]
+  policy: string
+  decisions: [string, string]
+  enforce: string[]
 }
 
 // Drawn by the particle swarm itself rather than a DOM diagram.
@@ -83,7 +87,7 @@ export type Showcase =
   | CompareShowcase
   | FlowsShowcase
   | ModulesShowcase
-  | CodeShowcase
+  | AbacShowcase
   | SceneShowcase
 
 export interface CaseStudy {
@@ -102,7 +106,7 @@ export interface CaseStudy {
 export const currentRole = {
   company: 'Etiqa Insurance and Takaful Sdn Bhd',
   role: '.NET Developer',
-  period: 'Nov 2025 - Present',
+  period: 'Nov 2025 – Present',
 }
 
 export const caseStudies: CaseStudy[] = [
@@ -111,7 +115,7 @@ export const caseStudies: CaseStudy[] = [
     title: 'AI Agent Orchestration',
     subtitle: 'Multi-agent workflow system',
     problem:
-      'Team needed to handle complex, multi-step tasks using AI, but context window constraints made single-agent approaches unreliable for large codebases.',
+      'The team needed to handle complex, multi-step tasks with AI, but context window constraints made single-agent approaches unreliable for large codebases.',
     solution:
       'Engineered a multi-agent system following an Analysis → Plan → Implement → Review pipeline. Each agent has a specialized role with constrained context, passing structured outputs between stages.',
     result: '60% boost in team productivity across development workflows.',
@@ -134,17 +138,41 @@ export const caseStudies: CaseStudy[] = [
     solution:
       'Streamlined development workflows and leveraged AI-assisted spec-driven development (OpenSpec + Obsidian) to maintain full context across sessions. Established coding standards and requirements that stay continuously up to date, enabling faster onboarding and execution.',
     result:
-      'Consistently completed complex system revamp modules in 1 week vs. the projected 2-week lead time — a 50% reduction in delivery timelines.',
+      'Consistently completed complex revamp modules in 1 week, half the projected 2-week lead time.',
     tech: ['.NET', 'React', 'AI-Assisted Development', 'Spec-Driven Workflow'],
     metric: '50%',
-    metricLabel: 'faster delivery',
+    metricLabel: 'shorter lead time',
     showcase: {
       type: 'compare',
       variant: 'timeline',
       title: 'Delivery Speed Improvement',
-      before: { label: 'Before', value: '2 weeks', sublabel: 'per module' },
-      after: { label: 'After', value: '1 week', sublabel: 'per module' },
-      improvement: '50% faster',
+      before: { label: 'Projected', value: '2 weeks', sublabel: 'per module' },
+      after: { label: 'Delivered', value: '1 week', sublabel: 'per module' },
+      improvement: '50% shorter lead time',
+    },
+  },
+  {
+    id: 'hrms',
+    title: 'Internal HRMS (Full SDLC)',
+    subtitle: 'Serving 7,000+ Maybank group users',
+    problem:
+      'The Maybank group needed internal HRMS modules for recruitment, onboarding, and OKR management, but development capacity was limited to a small team on a tight deadline.',
+    solution:
+      'Delivered the recruitment/onboarding and OKR modules as a core developer on a 4-person team, working across the full software development lifecycle from design to deployment.',
+    result: 'Modules delivered in ~2 months, serving 7,000+ internal users across the Maybank group.',
+    tech: ['.NET', 'React', 'Full SDLC'],
+    metric: '7K+',
+    metricLabel: 'internal users',
+    showcase: {
+      type: 'modules',
+      title: 'Platform Modules Delivered',
+      modules: [
+        { name: 'Recruitment', scope: ['Job posting', 'Offer'] },
+        { name: 'Onboarding', scope: ['Docs', 'IT Setup', 'Training'] },
+        { name: 'OKR Management', scope: ['Goals', 'Tracking', 'Reviews'] },
+      ],
+      team: '4 people',
+      timeline: '~2 months',
     },
   },
   {
@@ -154,7 +182,7 @@ export const caseStudies: CaseStudy[] = [
     problem:
       'Recruitment and internal modules needed flexible approval routing that could adapt to different business processes without code changes.',
     solution:
-      'Architected a module-agnostic, dynamic approval engine supporting Parallel, Sequential, and Percentage-based routing. Each workflow is configuration-driven with a full audit trail.',
+      'Architected a module-agnostic, dynamic approval engine supporting sequential, parallel, and percentage-based approval routing. Each workflow is configuration-driven with a full audit trail.',
     result: '100% auditability for recruitment and internal modules. New workflows deploy without code changes.',
     tech: ['.NET', 'Domain-Driven Design', 'Clean Architecture'],
     metric: '100%',
@@ -170,49 +198,25 @@ export const caseStudies: CaseStudy[] = [
     },
   },
   {
-    id: 'hrms',
-    title: 'Internal HRMS (Full SDLC)',
-    subtitle: 'Serving 7,000+ Maybank group users',
-    problem:
-      'The Maybank group needed internal HRMS modules for recruitment, onboarding, and OKR management, but development capacity was limited to a small team on a tight deadline.',
-    solution:
-      'Delivered recruitment/onboarding and OKR modules as a core developer on a 4-person team, owning the full software development lifecycle from design to deployment.',
-    result: 'Modules delivered in ~2 months, serving 7,000+ internal users across the Maybank group.',
-    tech: ['.NET', 'React', 'Full SDLC', 'Enterprise Scale'],
-    metric: '7K+',
-    metricLabel: 'users served',
-    showcase: {
-      type: 'modules',
-      title: 'Platform Modules Delivered',
-      modules: [
-        { name: 'Recruitment', scope: ['Job posting', 'Offer'] },
-        { name: 'Onboarding', scope: ['Docs', 'IT Setup', 'Training'] },
-        { name: 'OKR Management', scope: ['Goals', 'Tracking', 'Reviews'] },
-      ],
-      team: '4 developers',
-      timeline: '2 months',
-    },
-  },
-  {
     id: 'mfe-migration',
     title: 'Micro-frontend Migration',
     subtitle: 'Module Federation architecture',
     problem:
-      'Monolithic frontend slowed deployment cycles. A change in one module required full regression testing and redeployment of the entire application.',
+      'A monolithic frontend slowed deployment cycles: a change in one module meant regression testing and redeploying the entire application.',
     solution:
-      'Spearheaded transition to Micro-frontend architecture using Module Federation. Each team owns their module with independent deployment.',
+      'Spearheaded the transition to a micro-frontend (MFE) architecture using Module Federation. Each team owns its module and deploys it independently.',
     result:
-      'Teams ship independently on their own release cadence. Zero cross-team deployment blocking. Zero downtime for unaffected modules.',
+      'Teams ship on their own release cadence, with no cross-team deployment blocking and zero downtime for unaffected modules.',
     tech: ['React', 'Module Federation', 'TypeScript'],
     metric: 'Zero',
-    metricLabel: 'downtime',
+    metricLabel: 'downtime for unaffected modules',
     showcase: {
       type: 'compare',
       variant: 'split',
       title: 'Deployment Model Transformation',
       before: { label: 'Monolith', value: 'Coordinated', sublabel: 'All teams release together' },
       after: { label: 'MFE', value: 'Independent', sublabel: 'Each team deploys anytime' },
-      improvement: 'Zero coupling',
+      improvement: 'Independent deploys',
     },
   },
   {
@@ -222,63 +226,28 @@ export const caseStudies: CaseStudy[] = [
     problem:
       'Manual candidate screening was time-consuming and inconsistent. Recruiters needed a way to quickly assess candidates at scale while identifying potential red flags.',
     solution:
-      'Integrated AI analysis services to automate candidate screening, providing match scores, red flag detection, and summaries to streamline the hiring pipeline.',
-    result: 'Automated screening with match scores, red flag detection, and summaries that streamline the hiring pipeline.',
+      'Integrated AI analysis services to automate candidate screening, providing match scores, red-flag detection, and summaries.',
+    result: 'Automated candidate screening that streamlines the hiring pipeline and cuts manual review.',
     tech: ['.NET', 'React', 'AI Integration', 'Workflow Engine'],
-    metric: 'Auto',
-    metricLabel: 'screening',
+    metric: 'AI',
+    metricLabel: 'candidate screening',
     showcase: {
       type: 'pipeline',
       title: 'AI Screening Pipeline',
       stages: ['Resume Input', 'AI Analysis', 'Match Score', 'Red Flags', 'Summary'],
-      description: 'Every candidate gets a match score, red flag check, and summary',
-    },
-  },
-  {
-    id: 'api-gateway',
-    title: 'API Gateway (Reverse Proxy)',
-    subtitle: '.NET gateway in front of internal services',
-    problem: 'Requests needed one controlled entry point for routing, rate limiting, and TLS.',
-    solution:
-      'Built a .NET-based gateway repository that handles routing, token-bucket rate limiting, and TLS termination.',
-    result: 'A single gateway handles routing, rate limiting, and TLS termination for incoming traffic.',
-    tech: ['.NET', 'Reverse Proxy', 'Rate Limiting', 'TLS'],
-    metric: 'TLS',
-    metricLabel: 'terminated at the edge',
-    showcase: {
-      type: 'scene',
-      scene: 'gateway',
-      title: 'Gateway Traffic Flow',
-      labels: ['Token-bucket rate limiting', 'TLS termination', 'Routing'],
-    },
-  },
-  {
-    id: 'observability',
-    title: 'Observability',
-    subtitle: 'Azure Application Insights',
-    problem: 'Application health needed to be visible in one place.',
-    solution: 'Configured Azure Application Insights for centralized logging and monitoring of application health.',
-    result: 'Centralized logs and health monitoring in Azure Application Insights.',
-    tech: ['Azure', 'Application Insights', 'Logging', 'Monitoring'],
-    metric: 'Logs',
-    metricLabel: 'centralized',
-    showcase: {
-      type: 'scene',
-      scene: 'observe',
-      title: 'Centralized Monitoring',
-      labels: ['Application health', 'Centralized logging', 'Azure Application Insights'],
+      description: 'One AI analysis returns a match score, red flags, and a summary for each candidate',
     },
   },
   {
     id: 'domain-design',
-    title: 'System Architecture & Design',
-    subtitle: 'With the Customer Data Hub team',
-    problem: 'Employee data needed a single source of truth across teams.',
+    title: 'Tech & Business Analysis',
+    subtitle: 'Domain design with the Customer Data Hub team',
+    problem: 'Employee data needed a single source of truth.',
     solution: 'Collaborated with the Customer Data Hub team to define domain boundaries and ERDs.',
     result: 'Established a single source of truth for employee data.',
     tech: ['Domain-Driven Design', 'ERD', 'System Design'],
-    metric: 'ERD',
-    metricLabel: 'domain boundaries',
+    metric: '1',
+    metricLabel: 'source of truth',
     showcase: {
       type: 'scene',
       scene: 'talk',
@@ -290,32 +259,55 @@ export const caseStudies: CaseStudy[] = [
     id: 'auth',
     title: 'Granular Authorization',
     subtitle: 'Attribute-Based Access Control',
-    problem:
-      'Role-based access was too coarse and scattered across frontend code. Permission logic was duplicated in UI checks and API endpoints, creating security gaps.',
+    problem: 'Role-based checks were too coarse for fine-grained user permissions.',
     solution:
-      'Implemented a comprehensive Attribute-Based Access Control (ABAC) system across React and .NET for fine-grained user permission management. The API returns a capabilities object declaring what actions the current user can perform on each resource.',
-    result: 'Fine-grained user permission management across React and .NET. Frontend is a thin client with no permission logic.',
+      'Implemented a comprehensive Attribute-Based Access Control (ABAC) system across React and .NET for fine-grained user permission management.',
+    result: 'One attribute-based permission model, enforced in both the React UI and the .NET API.',
     tech: ['.NET', 'React', 'ABAC', 'JWT'],
     metric: 'ABAC',
     metricLabel: 'security model',
     showcase: {
-      type: 'code',
-      title: 'Backend-Driven Capabilities',
-      before: `// Frontend hard-coded permissions
-if (user.role === 'admin' && order.status === 'paid') {
-  showDeleteButton = true;
-}`,
-      after: `// API response with capabilities
-{
-  "id": "123",
-  "capabilities": {
-    "cancel": true,
-    "pay": false,
-    "delete": false
-  }
-}
-// Frontend: pure renderer, zero logic
-order.capabilities.cancel && <Button />`,
+      type: 'abac',
+      title: 'Attribute-Based Decisions',
+      inputs: ['User attributes', 'Resource attributes', 'Action', 'Context'],
+      policy: 'ABAC policy',
+      decisions: ['Permit', 'Deny'],
+      enforce: ['React UI', '.NET API'],
+    },
+  },
+  {
+    id: 'api-gateway',
+    title: 'API Gateway',
+    subtitle: '.NET-based reverse proxy',
+    problem: 'Incoming requests needed a single, controlled entry point.',
+    solution:
+      'Built a .NET-based gateway repository that handles routing, token-bucket rate limiting, and TLS termination.',
+    result: 'Routing, rate limiting, and TLS termination are centralized in one .NET gateway.',
+    tech: ['.NET', 'Reverse Proxy', 'Rate Limiting', 'TLS'],
+    metric: 'TLS',
+    metricLabel: 'termination',
+    showcase: {
+      type: 'scene',
+      scene: 'gateway',
+      title: 'Gateway Traffic Flow',
+      labels: ['Token-bucket rate limiting', 'TLS termination', 'Routing'],
+    },
+  },
+  {
+    id: 'observability',
+    title: 'Observability',
+    subtitle: 'Azure Application Insights',
+    problem: 'Logs and application health needed to be monitored in one place.',
+    solution: 'Configured Azure Application Insights for centralized logging and monitoring of application health.',
+    result: 'Logs and application health are now visible in one place.',
+    tech: ['Azure', 'Application Insights', 'Logging', 'Monitoring'],
+    metric: 'Logs',
+    metricLabel: 'centralized',
+    showcase: {
+      type: 'scene',
+      scene: 'observe',
+      title: 'Centralized Monitoring',
+      labels: ['Application health', 'Centralized logging', 'Azure Application Insights'],
     },
   },
 ]
@@ -323,11 +315,11 @@ order.capabilities.cancel && <Button />`,
 export const internship = {
   role: 'Game Developer Intern',
   company: 'AIO Synergy Sdn Bhd',
-  period: 'Jun 2024 - Feb 2025',
+  period: 'Jun 2024 – Feb 2025',
   points: [
-    'Built server-integrated game features using TypeScript with reusable, optimized mechanics.',
-    'Led backend integration for a Scratch Card game - REST API calls for secure data handling, user progress tracking, and client-server communication.',
-    'Collaborated in an Agile team using Git across debugging, testing, and deployment.',
+    'Built server-integrated game features in TypeScript, writing reusable, optimized code for game mechanics.',
+    'Led backend integration for a Scratch Card game, implementing REST API calls for secure data handling, user progress tracking, and client-server communication through to a successful deployment.',
+    'Collaborated in an Agile team using Git for version control, from debugging through testing and deployment.',
   ],
 }
 
@@ -357,15 +349,16 @@ export const projects: Project[] = [
   {
     id: 'pet-appointment',
     name: 'Pet Appointment System',
-    tagline: 'Full-Stack Cloud-Native',
+    tagline: 'Full-Stack Cloud-Native Web App',
     year: '2025',
     tech: ['C#', '.NET', 'SQL Server', 'React', 'Azure', 'AWS'],
     summary:
-      'A full-stack pet appointment management system built with Clean Architecture, CQRS, and cloud-native deployment.',
+      'A full-stack pet appointment management system built with Clean Architecture and CQRS, deployed to Azure and AWS.',
     details: [
-      'Implemented secure authentication using JWT + OAuth 2.0 (Google) for flexible user access.',
+      'Implemented secure authentication and authorization using JWT and OAuth 2.0 (Google).',
       'Applied CQRS via MediatR for clear separation of concerns and maintainable code.',
       'Designed optimized SQL Server schemas with triggers to enforce business rules.',
+      'Wrote comprehensive unit tests.',
       'Automated appointment reminders using Quartz.NET scheduling with WhatsApp API integration.',
       'Deployed to Azure App Services and AWS EC2/CloudFront with DNS managed via Route 53.',
     ],
@@ -389,7 +382,7 @@ export const projects: Project[] = [
   },
   {
     id: 'rag-chat',
-    name: 'AI-Powered RAG Chat',
+    name: 'AI-Powered RAG Chat Demo',
     tagline: 'Retrieval-Augmented Generation',
     year: '2025',
     tech: ['.NET', 'Azure AI Services', 'RAG'],
@@ -397,14 +390,14 @@ export const projects: Project[] = [
       'A .NET Web API implementing RAG using Azure AI services to answer queries contextually from a custom blog-post corpus.',
     details: [
       'Built a .NET Web API that processes user queries through Azure AI embeddings.',
-      'Implemented retrieval-augmented generation to ground responses in a custom knowledge corpus.',
-      'Chat orchestration handles context management and response generation.',
+      'Implemented retrieval-augmented generation to ground responses in a custom blog-post corpus.',
+      'Used Azure AI chat orchestration to manage context and generate answers.',
     ],
     nodes: [
       { id: 'q', label: 'User Query', x: 200, y: 30 },
       { id: 'api', label: '.NET API', x: 200, y: 92 },
       { id: 'emb', label: 'Azure AI Embeddings', x: 104, y: 160 },
-      { id: 'corpus', label: 'Blog-post Corpus', x: 296, y: 160 },
+      { id: 'corpus', label: 'Blog-Post Corpus', x: 296, y: 160 },
       { id: 'chat', label: 'Chat Orchestration', x: 200, y: 228 },
       { id: 'res', label: 'Response', x: 200, y: 292 },
     ],
@@ -413,6 +406,7 @@ export const projects: Project[] = [
       ['api', 'emb'],
       ['emb', 'corpus'],
       ['corpus', 'chat'],
+      ['api', 'chat'],
       ['chat', 'res'],
     ],
   },
@@ -425,9 +419,9 @@ export const projects: Project[] = [
     summary:
       'A multiplayer game with blockchain-verified NFT ownership, authoritative server networking, and scalable backend services.',
     details: [
-      'Architected scalable backend using Azure PlayFab for player data, authentication, and server-side logic.',
-      'Integrated ThirdWeb smart contracts on Polygon for NFT ownership verification and transactions.',
-      'Utilized Photon Fusion for authoritative server networking with state synchronization.',
+      'Architected a scalable backend using Azure PlayFab for player data, authentication, and server-side logic.',
+      'Integrated ThirdWeb smart contracts on Polygon, with secure server-side routines for NFT ownership verification and transactions.',
+      'Used Photon Fusion for authoritative server networking with state synchronization.',
     ],
     nodes: [
       { id: 'unity', label: 'Unity Client', x: 150, y: 42 },
@@ -440,7 +434,7 @@ export const projects: Project[] = [
     edges: [
       ['unity', 'photon'],
       ['unity', 'playfab'],
-      ['unity', 'tw'],
+      ['playfab', 'tw'],
       ['playfab', 'data'],
       ['tw', 'nft'],
     ],
@@ -451,11 +445,24 @@ export const projects: Project[] = [
 
 export const skillCategories: { name: string; skills: string[] }[] = [
   { name: 'Languages', skills: ['C#', 'TypeScript', 'JavaScript', 'SQL', 'C++', 'Java'] },
-  { name: 'Backend', skills: ['.NET (Core/8+)', 'EF Core', 'MediatR (CQRS)', 'Dapper', 'REST APIs', 'Microservices'] },
+  { name: 'Backend', skills: ['.NET (Core/8+)', 'EF Core', 'MediatR (CQRS)', 'Dapper', 'REST APIs', 'Microservices', 'Quartz.NET'] },
   { name: 'Frontend', skills: ['React', 'Micro-frontends (MFE)', 'Module Federation', 'Tailwind CSS', 'Redux'] },
   { name: 'AI & Automation', skills: ['AI Agent Orchestration', 'Prompt Engineering', 'RAG', 'Multi-Agent Workflows'] },
-  { name: 'Architecture', skills: ['Clean Architecture', 'DDD', 'ABAC', 'JWT / OAuth 2.0'] },
-  { name: 'Cloud & DevOps', skills: ['Azure', 'AWS', 'Docker', 'Git'] },
+  { name: 'Architecture & Security', skills: ['Clean Architecture', 'DDD', 'Result Pattern', 'ABAC', 'RBAC', 'JWT', 'OAuth 2.0'] },
+  {
+    name: 'Cloud & DevOps',
+    skills: [
+      'Azure App Services',
+      'Azure Storage',
+      'Azure Service Bus',
+      'Azure Key Vault',
+      'Application Insights',
+      'AWS (EC2, CloudFront, Route 53)',
+      'Docker',
+      'Git',
+      'Jira',
+    ],
+  },
 ]
 
 export const marqueeWords = [
@@ -474,9 +481,9 @@ export const marqueeWords = [
 export const education = {
   degree: 'Bachelor of Computer Science (Graphics and Multimedia Software)',
   school: 'Universiti Teknologi Malaysia',
-  period: 'Oct 2021 - Jul 2025',
+  period: 'Oct 2021 – Jul 2025',
   cgpa: '4.0',
   award: "Dean's List",
-  awardDetail: 'All Semesters (1-8)',
+  awardDetail: 'All Semesters (1–8)',
   semesters: 8,
 }

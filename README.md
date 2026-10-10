@@ -10,15 +10,18 @@ One full-screen particle system (custom GLSL, ~22k points) sits behind the whole
 |---|---|---|
 | Hero | Breathing sphere | The core |
 | Experience | Hub + 5 agents linked by streams, packets running along the links | Multi-agent orchestration |
+| ↳ API Gateway case | Traffic funnels through a TLS ring; a token bucket lets a burst through, then the refill rate; three routes out | Routing, token-bucket rate limiting, TLS termination |
+| ↳ Observability case | Radar scope with sweep, log streams flowing into the centre, heartbeat trace | Application Insights: centralized logging, health |
+| ↳ Tech & Business Analysis case | Two people at a table, a shared ERD between them, conversation arc | Domain boundaries with the Customer Data Hub team |
 | Projects | Three stacked tiers with pillar connectors | Layered architecture |
 | Stack | Rotating spiral galaxy | Everything in the toolbox |
 | Contact | The word HELLO | Say hi |
 
-The pointer pushes particles away, scroll speed adds RGB split (post-processing), and every case study has its own animated architecture diagram.
+The pointer pushes particles away, scroll speed adds RGB split (post-processing), and every case study has its own animated diagram. Each experience panel names its swarm shape with `data-scene`; the three case-specific scenes are pinned to the panel's `[data-scene-anchor]` frame (see `src/components/gl/scene.ts`).
 
 ## Content Source
 
-- Every fact on the site lives in `src/data/content.ts` and comes from the resume. Do not add claims that are not in the resume.
+- Every fact on the site lives in `src/data/content.ts`. It comes from the resume or from the owner (the resume is trimmed to one page, so some details and examples only appear on the site). Do not invent claims.
 - Canonical public resume path: `/portfolio/resume/NgKaiZheng_Resume.pdf` (built as `${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf`, defined in `src/data/content.ts`)
 - Public resume file location: `public/resume/NgKaiZheng_Resume.pdf`
 
@@ -43,7 +46,7 @@ src/
 ## Sections
 
 - **Hero** — Liquid-weight name (letters thin out near the pointer), scrambling role, animated stats, resume CTA
-- **Experience** — Pinned horizontal scroll through 7 Etiqa case files (problem / solution / result) + AIO Synergy internship. Each case has an animated diagram: agent pipeline, delivery timeline, routing patterns, delivered modules, monolith vs micro-frontends, screening pipeline, capabilities code diff
+- **Experience** — Pinned horizontal scroll through 10 Etiqa case files (problem / solution / result) + AIO Synergy internship. Each case has an animated diagram: agent pipeline, delivery timeline, delivered modules, routing patterns, monolith vs micro-frontends, screening pipeline, ABAC permit/deny flow — or a live particle scene (API gateway, observability, domain analysis)
 - **Projects** — Pet Appointment, RAG Chat, Blockchain Multiplayer Game, each with an animated blueprint (packets flow along the architecture links, 3D tilt on hover)
 - **Stack** — Category index rows with a hover wipe
 - **Education** — UTM, CGPA 4.0 fill, Dean's List across all 8 semesters

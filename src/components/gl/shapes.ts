@@ -235,8 +235,8 @@ export function text(count: number, word: string, fontFamily: string) {
 // every frame (they flow), so only (u, lane, kind) is stored per particle.
 
 // API gateway: chaotic inbound traffic funnels through a TLS ring, a token
-// bucket drips permits into it, and requests leave as evenly spaced
-// packets on three routes.
+// bucket drips permits into it, and requests leave on three routes: a
+// burst while the bucket is full, then spaced at the refill rate.
 //   kind 0 ring, 1 inbound, 2 routed packets, 3 route targets, 4 token bucket
 export function gatewayParams(count: number) {
   const out = new Float32Array(count * 3)

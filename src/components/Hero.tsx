@@ -135,7 +135,7 @@ export default function Hero({ ready }: { ready: boolean }) {
       <div className="hero-top">
         <p className="hero-status">
           <span className="pulse-dot" aria-hidden="true" />
-          Available for hire
+          Open to Singapore roles
         </p>
         <p className="hero-role">
           <span className="sr-only">{profile.role}</span>

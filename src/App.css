@@ -2063,94 +2063,225 @@ a:hover .roll-ch > span:last-child,
   }
 }
 
-/* Code */
+/* ABAC decision flow (4s per request, permit then deny = 8s) */
 
-.code {
-  display: grid;
-  gap: 10px;
+.abac {
+  width: 100%;
+  height: auto;
 }
 
-.code-pane {
-  position: relative;
-  border: 1px solid var(--line-2);
-  background: #070707;
+.abac-edge line {
+  stroke: var(--line-2);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
 }
 
-.code-tab {
-  margin: 0;
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--line);
+.abac-edge.is-mismatch line {
+  animation: abac-mismatch-line 8s steps(1) infinite;
+}
+
+.abac-edge circle {
+  fill: var(--accent);
+  opacity: 0;
+  filter: drop-shadow(0 0 4px var(--accent));
+  animation: abac-in 4s linear infinite;
+}
+
+.abac-edge.is-mid circle {
+  animation-name: abac-mid;
+}
+
+.abac-edge.is-out circle {
+  animation:
+    abac-out 4s linear infinite,
+    abac-verdict-fill 8s steps(1) infinite;
+}
+
+.abac-node rect {
+  fill: #0b0b0b;
+  stroke: var(--line-2);
+}
+
+.abac-node text,
+.abac-decision text {
+  fill: var(--fg);
   font-family: var(--f-mono);
   font-size: 10.5px;
+}
+
+.abac-node.is-mismatch rect {
+  animation: abac-mismatch-node 8s steps(1) infinite;
+}
+
+.abac-policy rect {
+  stroke: var(--accent);
+  animation: abac-policy 4s linear infinite;
+}
+
+.abac-decision rect {
+  fill: #0b0b0b;
+  stroke: var(--accent);
+  animation: abac-verdict-stroke 8s steps(1) infinite;
+}
+
+.abac-decision text {
+  font-size: 11px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--fg-3);
 }
 
-.code-pane.is-after .code-tab {
-  color: var(--accent);
+.abac-decision .is-permit {
+  fill: var(--accent);
+  animation: abac-show-first 8s steps(1) infinite;
 }
 
-.code pre {
-  margin: 0;
-  padding: 12px 14px;
-  overflow-x: auto;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  line-height: 1.55;
-  color: var(--fg);
-}
-
-.code-line {
-  display: block;
-  min-height: 1.55em;
-  white-space: pre;
-}
-
-.code-pane.is-before pre {
-  opacity: 0.55;
-}
-
-.code-pane.is-before::after {
-  content: '';
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  top: 62%;
-  height: 1.5px;
-  background: var(--danger);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.8s var(--ease-out) 0.4s;
-}
-
-.is-seen .code-pane.is-before::after {
-  transform: scaleX(1);
-}
-
-.code-pane.is-after .code-line {
+.abac-decision .is-deny {
   opacity: 0;
-  transform: translateX(-8px);
-  transition:
-    opacity 0.4s,
-    transform 0.5s var(--ease-out);
-  transition-delay: calc(var(--i) * 70ms + 0.6s);
+  fill: var(--danger);
+  animation: abac-show-second 8s steps(1) infinite;
 }
 
-.is-seen .code-pane.is-after .code-line {
-  opacity: 1;
-  transform: none;
+.abac-enforce rect {
+  animation: abac-enforce 8s linear infinite;
 }
 
-.tk-c {
-  color: var(--fg-3);
+@keyframes abac-in {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  4%,
+  32% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
 }
 
-.tk-s {
-  color: var(--accent);
+@keyframes abac-mid {
+  0%,
+  38% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  40%,
+  53% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
 }
 
-.tk-b {
-  color: #9db8ff;
+@keyframes abac-out {
+  0%,
+  58% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  60%,
+  80% {
+    opacity: 1;
+  }
+  83%,
+  100% {
+    transform: translate(var(--dx), var(--dy));
+    opacity: 0;
+  }
+}
+
+@keyframes abac-policy {
+  0%,
+  33%,
+  48%,
+  100% {
+    fill: #0b0b0b;
+  }
+  36%,
+  44% {
+    fill: #1c2408;
+  }
+}
+
+@keyframes abac-verdict-fill {
+  0% {
+    fill: var(--accent);
+  }
+  50% {
+    fill: var(--danger);
+  }
+}
+
+@keyframes abac-verdict-stroke {
+  0% {
+    stroke: var(--accent);
+  }
+  50% {
+    stroke: var(--danger);
+  }
+}
+
+@keyframes abac-show-first {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes abac-show-second {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes abac-mismatch-line {
+  0% {
+    stroke: var(--line-2);
+  }
+  50% {
+    stroke: var(--danger);
+  }
+}
+
+@keyframes abac-mismatch-node {
+  0% {
+    stroke: var(--line-2);
+  }
+  50% {
+    stroke: var(--danger);
+  }
+}
+
+/* enforcement points flash with the verdict when the packet lands */
+@keyframes abac-enforce {
+  0%,
+  40%,
+  50%,
+  90%,
+  100% {
+    stroke: var(--line-2);
+  }
+  42%,
+  47% {
+    stroke: var(--accent);
+  }
+  92%,
+  97% {
+    stroke: var(--danger);
+  }
 }
 
 /* ═══ Projects ═════════════════════════════════════════════ */
@@ -2865,6 +2996,10 @@ a:hover .roll-ch > span:last-child,
     justify-content: center;
   }
 
+  .case-metric {
+    font-size: min(12vh, 19vw);
+  }
+
   .case-psr > div {
     grid-template-columns: minmax(0, 1fr);
     gap: 4px;
@@ -2920,6 +3055,7 @@ a:hover .roll-ch > span:last-child,
   .flow-packet,
   .bp-packet,
   .bp-flow,
+  .abac-edge circle,
   .mod-scan,
   .tl-bar::after {
     display: none;

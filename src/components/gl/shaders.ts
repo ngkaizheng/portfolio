@@ -110,6 +110,12 @@ float packet(vec2 edge, float speed) {
 // Brightness boost written by the procedural shapes below.
 float gGlow;
 
+// Position in the gateway's traffic cycle (0..1): burst at 0, refill-rate
+// requests until ~0.46, then a lull while the bucket refills.
+float gateCycle() {
+  return fract(uTime * 0.16);
+}
+
 vec3 gatewayShape() {
   float u = aGate.x;
   float lane = aGate.y;
@@ -132,11 +138,14 @@ vec3 gatewayShape() {
     p = vec3(mix(-3.3, -0.1, t), (h1 * 2.0 - 1.0) * spread, (h2 * 2.0 - 1.0) * spread);
     p.y += sin(uTime * 1.7 + h3 * 40.0) * 0.06 * (1.0 - t);
   } else if (kind < 2.5) {
-    // rate-limited: evenly spaced packets fanning out to three routes
-    float slot = floor(u * 12.0) / 12.0;
-    float t = fract(slot + uTime * 0.11) + (h1 - 0.5) * 0.014;
+    // Token bucket: a full bucket lets a burst through, then requests leave
+    // at the refill rate, then the bucket refills during the lull.
+    float slot = floor(u * 7.0);
+    float depart = slot < 4.0 ? slot * 0.028 : 0.2 + (slot - 4.0) * 0.13;
+    float t = fract(gateCycle() - depart) * 1.6 + (h1 - 0.5) * 0.012;
     float laneY = (lane - 1.0) * 0.9;
     p = vec3(mix(0.1, 3.0, t), laneY * smoothstep(0.0, 0.3, t) + (h2 - 0.5) * 0.05, (h3 - 0.5) * 0.05);
+    p.x = t > 1.0 ? 3.0 : p.x;
     gGlow = 0.75;
   } else if (kind < 3.5) {
     vec3 dir = normalize(vec3(h1 - 0.5, h2 - 0.5, h3 - 0.5) + 1e-4);
@@ -151,7 +160,10 @@ vec3 gatewayShape() {
       else p = vec3(0.5, mix(1.45, 2.05, s - 2.0), 0.0);
       p.z = h1 < 0.5 ? -0.28 : 0.28;
     } else if (lane < 1.5) {
-      float level = 1.55 + 0.35 * (0.5 + 0.5 * sin(uTime * 0.8));
+      // drains on the burst, stays empty at the refill rate, refills in the lull
+      float c = gateCycle();
+      float fill = c < 0.1 ? 1.0 - c / 0.1 : c < 0.46 ? 0.06 : (c - 0.46) / 0.54;
+      float level = 1.5 + 0.5 * fill;
       p = vec3(mix(-0.42, 0.42, h1), mix(1.5, level, h2), mix(-0.22, 0.22, h3));
       gGlow = 0.6;
     } else {

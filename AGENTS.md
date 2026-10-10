@@ -31,9 +31,9 @@ Personal portfolio for Ng Kai Zheng (React + TypeScript + Vite, GitHub Pages pro
 
 ## 3. Requirements
 
-### R1 — Resume-Faithful Content
+### R1 — Truthful Content
 
-All copy lives in `src/data/content.ts` and reflects **only** facts from the resume (`public/resume/NgKaiZheng_Resume.pdf`). No invented claims, metrics, skill-level percentages or filler. Diagram labels may only name things the resume already names.
+All copy lives in `src/data/content.ts`. Facts come from the resume (`public/resume/NgKaiZheng_Resume.pdf`) **or from the owner directly** — the resume is trimmed to fit one page, so the site may carry details and examples it leaves out. Never invent claims, metrics, skill-level percentages or filler yourself; if a fact is neither in the resume nor already on the site, ask the owner.
 
 ### R2 — Canonical Resume Download Path
 
@@ -63,7 +63,7 @@ Links carry the `download` attribute. Never hard-code another path.
 
 ## 4. Boundaries (What NOT To Do)
 
-1. **Do not** introduce non-resume claims or invented facts.
+1. **Do not** invent facts; new claims need the resume or the owner behind them.
 2. **Do not** hard-code the resume path or drop the `download` attribute.
 3. **Do not** block content behind the preloader or WebGL loading.
 4. **Do not** load fonts or scripts from third-party CDNs at runtime (fonts are self-hosted via Fontsource).
@@ -73,7 +73,7 @@ Links carry the `download` attribute. Never hard-code another path.
 
 ## 5. Definition Of Done
 
-- [ ] Copy matches the resume (cross-checked against `src/data/content.ts`)
+- [ ] Copy is resume-backed or owner-confirmed; nothing invented by the agent
 - [ ] All resume CTAs use `resumeHref` with `download`
 - [ ] `npm run lint`, `npm run test`, `npm run build` exit 0
 - [ ] Desktop (1440×900) and mobile (390×844) screenshots reviewed: no overflow, text readable over the particle layer
@@ -88,7 +88,7 @@ Links carry the `download` attribute. Never hard-code another path.
 |---|---|
 | `ERR_RESUME_LINK_001` | Resume CTA does not use `resumeHref` / canonical path |
 | `ERR_BUILD_001` | Lint, test or build failed, or Pages path compatibility could not be confirmed |
-| `ERR_CONTENT_001` | Copy contains a claim not found in the resume |
+| `ERR_CONTENT_001` | Copy contains a claim that is neither in the resume nor confirmed by the owner |
 
 ---
 

@@ -1,6 +1,6 @@
-import { useRef, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
+import { useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import type {
-  CodeShowcase,
+  AbacShowcase,
   CompareShowcase,
   FlowsShowcase,
   ModulesShowcase,
@@ -16,6 +16,9 @@ import { hasFinePointer } from '../lib/env'
 // (`is-live`); one-shot reveals key off `is-seen`.
 
 const vars = (v: Record<string, string | number>) => v as CSSProperties
+
+// Approximate advance of the 10.5px mono labels inside SVG diagrams.
+const CHAR_W = 6.3
 
 function liveClass(seen: boolean, visible: boolean) {
   return `${seen ? ' is-seen' : ''}${visible ? ' is-live' : ''}`
@@ -190,46 +193,74 @@ function Modules({ modules, team, timeline }: ModulesShowcase) {
   )
 }
 
-function highlight(line: string): ReactNode[] {
-  return line.split(/(\/\/.*$|"[^"]*"|'[^']*'|\btrue\b|\bfalse\b)/g).map((part, i) => {
-    if (!part) return null
-    let cls = ''
-    if (part.startsWith('//')) cls = 'tk-c'
-    else if (part.startsWith('"') || part.startsWith("'")) cls = 'tk-s'
-    else if (part === 'true' || part === 'false') cls = 'tk-b'
-    return cls ? (
-      <span className={cls} key={i}>
-        {part}
-      </span>
-    ) : (
-      part
-    )
-  })
-}
+// ABAC: attributes flow into the policy, the decision alternates between
+// permit and deny (the context attribute mismatches on the deny cycle),
+// and the decision is enforced in both the UI and the API.
+function Abac({ inputs, policy, decisions, enforce }: AbacShowcase) {
+  const policyAt = { x: 214, y: 125 }
+  const decisionAt = { x: 340, y: 125 }
+  const enforceAt = [
+    { x: 340, y: 42 },
+    { x: 340, y: 208 },
+  ]
+  const inputAt = inputs.map((_, i) => ({ x: 80, y: 36 + i * (180 / Math.max(inputs.length - 1, 1)) }))
+  const width = (label: string) => label.length * CHAR_W + 22
+  const edges = [
+    ...inputAt.map((from, i) => ({ from, to: policyAt, stage: 'in', mismatch: i === inputs.length - 1 })),
+    { from: policyAt, to: decisionAt, stage: 'mid', mismatch: false },
+    ...enforceAt.map((to) => ({ from: decisionAt, to, stage: 'out', mismatch: false })),
+  ]
+  const label = `${inputs.join(', ')} are evaluated by the ${policy}; the ${decisions.join(' or ')} decision is enforced in ${enforce.join(' and ')}.`
 
-function CodePane({ label, source }: { label: string; source: string }) {
   return (
-    <div className={`code-pane is-${label}`}>
-      <p className="code-tab">{label}</p>
-      <pre>
-        <code>
-          {source.split('\n').map((line, i) => (
-            <span className="code-line" key={i} style={vars({ '--i': i })}>
-              {highlight(line)}
-            </span>
-          ))}
-        </code>
-      </pre>
-    </div>
-  )
-}
-
-function Code({ before, after }: CodeShowcase) {
-  return (
-    <div className="code">
-      <CodePane label="before" source={before} />
-      <CodePane label="after" source={after} />
-    </div>
+    <svg className="abac" viewBox="0 0 420 250" role="img" aria-label={label}>
+      {edges.map((e, i) => (
+        <g key={i} className={`abac-edge is-${e.stage}${e.mismatch ? ' is-mismatch' : ''}`}>
+          <line x1={e.from.x} y1={e.from.y} x2={e.to.x} y2={e.to.y} />
+          <circle
+            cx={e.from.x}
+            cy={e.from.y}
+            r="3.4"
+            style={vars({ '--dx': `${e.to.x - e.from.x}px`, '--dy': `${e.to.y - e.from.y}px` })}
+          />
+        </g>
+      ))}
+      {inputs.map((input, i) => (
+        <g
+          key={input}
+          className={`abac-node${i === inputs.length - 1 ? ' is-mismatch' : ''}`}
+          transform={`translate(${inputAt[i].x} ${inputAt[i].y})`}
+        >
+          <rect x={-width(input) / 2} y={-13} width={width(input)} height={26} rx={2} />
+          <text textAnchor="middle" dominantBaseline="central">
+            {input}
+          </text>
+        </g>
+      ))}
+      <g className="abac-node abac-policy" transform={`translate(${policyAt.x} ${policyAt.y})`}>
+        <rect x={-width(policy) / 2 - 6} y={-17} width={width(policy) + 12} height={34} rx={2} />
+        <text textAnchor="middle" dominantBaseline="central">
+          {policy}
+        </text>
+      </g>
+      <g className="abac-decision" transform={`translate(${decisionAt.x} ${decisionAt.y})`}>
+        <rect x={-42} y={-15} width={84} height={30} rx={15} />
+        <text className="is-permit" textAnchor="middle" dominantBaseline="central">
+          {decisions[0]}
+        </text>
+        <text className="is-deny" textAnchor="middle" dominantBaseline="central">
+          {decisions[1]}
+        </text>
+      </g>
+      {enforce.map((name, i) => (
+        <g key={name} className="abac-node abac-enforce" transform={`translate(${enforceAt[i].x} ${enforceAt[i].y})`}>
+          <rect x={-width(name) / 2} y={-13} width={width(name)} height={26} rx={2} />
+          <text textAnchor="middle" dominantBaseline="central">
+            {name}
+          </text>
+        </g>
+      ))}
+    </svg>
   )
 }
 
@@ -285,8 +316,8 @@ function renderShowcase(showcase: Showcase) {
       return <Flows {...showcase} />
     case 'modules':
       return <Modules {...showcase} />
-    case 'code':
-      return <Code {...showcase} />
+    case 'abac':
+      return <Abac {...showcase} />
     case 'scene':
       return <SceneFrame {...showcase} />
   }
@@ -313,7 +344,6 @@ export function ShowcaseFigure({ showcase, index }: { showcase: Showcase; index:
 
 /* ─── Project blueprints ─────────────────────────────────── */
 
-const CHAR_W = 6.3
 
 export function Blueprint({ project, index }: { project: Project; index: number }) {
   const [ref, { seen, visible }] = useInView<HTMLDivElement>('0px')
