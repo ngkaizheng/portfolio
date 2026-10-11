@@ -57,7 +57,7 @@ src/
 
 ## Visitor Counter
 
-GitHub Pages has no backend, so visits are counted with [Abacus](https://abacus.jasoncameron.dev) (free hit counter, open CORS, no account). `src/lib/visits.ts` hits two keys in the `ngkaizheng-portfolio` namespace once per browser session: `total` and `day-YYYYMMDD` (GMT+8). Any page load counts (portfolio or game); the game page displays the numbers. No cookies or personal data; if the service is down the page shows "Visitor counter offline" and nothing else is affected. Tests never call it.
+GitHub Pages has no backend, so visits are counted with [Abacus](https://abacus.jasoncameron.dev) (free hit counter, open CORS, no account). `src/lib/visits.ts` hits two keys in the `ngkaizheng-portfolio` namespace once per browser session: `total` and `day-YYYYMMDD` (GMT+8). Any page load counts (portfolio or game); the portfolio footer and the game page both display the numbers (one shared request per page). No cookies or personal data; if the service is down the page shows "Visitor counter offline" and nothing else is affected. Tests never call it.
 
 ## Accessibility & Fallbacks
 

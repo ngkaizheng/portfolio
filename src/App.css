@@ -2841,7 +2841,7 @@ a:hover .roll-ch > span:last-child,
 
 .footer {
   display: grid;
-  grid-template-columns: repeat(5, auto);
+  grid-template-columns: repeat(6, auto);
   justify-content: space-between;
   align-items: center;
   gap: 16px;
@@ -2852,6 +2852,25 @@ a:hover .roll-ch > span:last-child,
   font-size: 11px;
   text-transform: uppercase;
   color: var(--fg-3);
+}
+
+.footer-visitors {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-visitors b {
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.footer-visitors i {
+  width: 6px;
+  height: 6px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 .footer-play {

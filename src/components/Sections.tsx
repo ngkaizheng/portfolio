@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { education, marqueeWords, profile, projects, resumeHref, skillCategories } from '../data/content'
 import { pad, useLocalTime } from '../lib/hooks'
 import { onScroll, scrollToTop } from '../lib/scroll'
+import { recordVisit, type VisitCounts } from '../lib/visits'
 import { Blueprint } from './Diagrams'
 import { ArrowIcon, Chips, DownloadIcon, RollText, SectionLabel, SplitHeading } from './ui'
 
@@ -38,6 +39,33 @@ export function Marquee() {
         {row}
       </div>
     </div>
+  )
+}
+
+/* ─── Visitor counter ────────────────────────────────────── */
+
+// Shares the session's single counter request with the rest of the page.
+function Visitors() {
+  const [counts, setCounts] = useState<VisitCounts | null>(null)
+
+  useEffect(() => {
+    let alive = true
+    recordVisit().then((c) => {
+      if (alive) setCounts(c)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  // Renders nothing until the counter answers (or if it never does).
+  if (!counts) return null
+  const fmt = (n: number) => n.toLocaleString('en-US')
+  return (
+    <span className="footer-visitors">
+      <i aria-hidden="true" />
+      <b>{fmt(counts.today)}</b> visitors today &middot; <b>{fmt(counts.total)}</b> all-time
+    </span>
   )
 }
 
@@ -229,6 +257,7 @@ export function Contact() {
         <span>&copy; {new Date().getFullYear()} {profile.name}</span>
         <span>Custom GLSL &middot; React Three Fiber &middot; GSAP</span>
         <span>Johor {time} GMT+8</span>
+        <Visitors />
         <a className="footer-play" href={`${import.meta.env.BASE_URL}play/`} data-cursor="Play">
           Bored? Play a game <ArrowIcon direction="up-right" />
         </a>
