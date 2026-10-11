@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { prefersReducedMotion } from '../lib/env'
+import { fitCanvas, useBest, useRound } from './kit'
+import { Lives, Overlay } from './ui'
 
 // "Rate Limited": you are the API gateway. Route the legit requests,
 // keep the DDoS packets off your servers, grab a TLS cert for a shield.
 
 type Kind = 'ok' | 'bad' | 'tls'
-type Phase = 'idle' | 'playing' | 'over'
 
 interface Packet {
   x: number
@@ -34,56 +35,15 @@ interface Hud {
 
 const LIVES = 3
 const SHIELD_SECONDS = 5
-const BEST_KEY = 'nkz-rate-limited-best'
 const COLORS: Record<Kind, string> = { ok: '#d4ff3a', bad: '#ff5a5a', tls: '#7ad7ff' }
-
-function loadBest() {
-  try {
-    return Number(localStorage.getItem(BEST_KEY)) || 0
-  } catch {
-    return 0
-  }
-}
-
-function saveBest(score: number) {
-  try {
-    localStorage.setItem(BEST_KEY, String(score))
-  } catch {
-    // Storage blocked: the best score just lives for this visit.
-  }
-}
-
 const START_HUD: Hud = { score: 0, lives: LIVES, multiplier: 1, level: 1, shield: false }
 
-export default function Game() {
-  const root = useRef<HTMLDivElement>(null)
+export default function RateLimited() {
   const stage = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const [phase, setPhase] = useState<Phase>('idle')
   const [hud, setHud] = useState<Hud>(START_HUD)
-  const [best, setBest] = useState(loadBest)
-  const [round, setRound] = useState(0)
-
-  const start = useCallback(() => {
-    setHud(START_HUD)
-    setRound((r) => r + 1)
-    setPhase('playing')
-    // Bring the HUD and the whole field on screen before the first packet lands.
-    root.current?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
-  }, [])
-
-  // Space / Enter starts a round from the overlay.
-  useEffect(() => {
-    if (phase === 'playing') return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code === 'Space' || e.code === 'Enter') {
-        e.preventDefault()
-        start()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [phase, start])
+  const [best, submitBest] = useBest('nkz-rate-limited-best')
+  const { root, phase, round, start, end } = useRound(() => setHud(START_HUD))
 
   useEffect(() => {
     const el = canvas.current
@@ -95,12 +55,7 @@ export default function Game() {
     let w = 0
     let h = 0
     const fit = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      w = box.clientWidth
-      h = box.clientHeight
-      el.width = Math.round(w * dpr)
-      el.height = Math.round(h * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ;({ w, h } = fitCanvas(el, box, ctx))
     }
     fit()
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null
@@ -159,12 +114,8 @@ export default function Game() {
 
     const finish = () => {
       ended = true
-      setPhase('over')
-      setBest((b) => {
-        if (score <= b) return b
-        saveBest(score)
-        return score
-      })
+      submitBest(score)
+      end()
     }
 
     const step = (dt: number) => {
@@ -366,7 +317,7 @@ export default function Game() {
       window.removeEventListener('keydown', onDown)
       window.removeEventListener('keyup', onUp)
     }
-  }, [phase, round])
+  }, [phase, round, end, submitBest])
 
   return (
     <div className="game" ref={root}>
@@ -381,11 +332,7 @@ export default function Game() {
         </div>
         <div>
           <dt>Uptime</dt>
-          <dd className="game-lives" aria-label={`${hud.lives} of ${LIVES}`}>
-            {Array.from({ length: LIVES }, (_, i) => (
-              <i key={i} className={i < hud.lives ? 'is-on' : ''} />
-            ))}
-          </dd>
+          <Lives lives={hud.lives} max={LIVES} />
         </div>
         <div>
           <dt>Combo</dt>
@@ -403,27 +350,16 @@ export default function Game() {
           role="img"
           aria-label="Game field: requests fall from clients at the top towards the gateway at the bottom"
         />
-        {phase !== 'playing' && (
-          <div className="game-overlay">
-            {phase === 'over' ? (
-              <>
-                <p className="game-kicker">503 Service Unavailable</p>
-                <p className="game-big">{hud.score}</p>
-                <p className="game-note">{hud.score > 0 && hud.score >= best ? 'New best score.' : `Best: ${best}`}</p>
-              </>
-            ) : (
-              <>
-                <p className="game-kicker">Mini game</p>
-                <p className="game-big">Rate Limited</p>
-                <p className="game-note">You are the API gateway. Keep the servers up.</p>
-              </>
-            )}
-            <button className="btn btn-solid" onClick={start}>
-              {phase === 'over' ? 'Restart' : 'Start'}
-            </button>
-            <p className="game-hint">Mouse / touch to move &middot; or &larr; &rarr; &middot; Space to start</p>
-          </div>
-        )}
+        <Overlay
+          phase={phase}
+          title="Rate Limited"
+          intro="You are the API gateway. Keep the servers up."
+          overKicker="503 Service Unavailable"
+          score={hud.score}
+          best={best}
+          onStart={start}
+          hint={<>Mouse / touch to move &middot; or &larr; &rarr; &middot; Space to start</>}
+        />
       </div>
 
       <ul className="game-legend">

@@ -306,3 +306,208 @@
 .game {
   scroll-margin-top: 12px;
 }
+
+/* Game tabs */
+
+.play-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.play-tabs a {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+}
+
+.play-tabs a:hover {
+  border-color: var(--line-2);
+}
+
+.play-tabs a.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.play-tab-index {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.play-tab-name {
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.play-tab-blurb {
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+/* Bug Bash */
+
+.bash-stage {
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.bash-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  width: min(100%, 640px);
+  aspect-ratio: 4 / 3;
+  max-height: 100%;
+}
+
+.bash-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(236, 235, 228, 0.02);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+.bash-file {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: var(--fg-3);
+}
+
+.bash-cell.is-bug {
+  border-color: rgba(255, 90, 90, 0.55);
+  background: rgba(255, 90, 90, 0.08);
+}
+
+.bash-bug {
+  display: block;
+  width: 42%;
+  max-width: 54px;
+  color: #ff5a5a;
+  animation: bash-in 0.18s var(--ease-back) both, bash-wiggle 0.4s ease-in-out 0.18s infinite alternate;
+}
+
+.bash-bug svg {
+  width: 100%;
+  height: auto;
+}
+
+.bash-cell.is-feature {
+  border-color: rgba(212, 255, 58, 0.5);
+  background: rgba(212, 255, 58, 0.06);
+}
+
+.bash-feature {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  color: var(--accent);
+  animation: bash-in 0.18s var(--ease-back) both;
+}
+
+.bash-pop {
+  position: absolute;
+  bottom: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  animation: bash-pop 0.5s var(--ease-out) both;
+}
+
+.bash-cell.mark-hit {
+  border-color: var(--accent);
+}
+
+.bash-cell.mark-hit .bash-pop {
+  color: var(--accent);
+}
+
+.bash-cell.mark-oops,
+.bash-cell.mark-shipped {
+  border-color: #ff5a5a;
+  background: rgba(255, 90, 90, 0.18);
+}
+
+.bash-cell.mark-oops .bash-pop,
+.bash-cell.mark-shipped .bash-pop {
+  color: #ff5a5a;
+}
+
+@keyframes bash-in {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes bash-wiggle {
+  from {
+    rotate: -8deg;
+  }
+  to {
+    rotate: 8deg;
+  }
+}
+
+@keyframes bash-pop {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .play-tabs {
+    gap: 6px;
+  }
+
+  .play-tabs a {
+    padding: 10px;
+  }
+
+  .play-tab-name {
+    font-size: 13px;
+  }
+
+  .play-tab-blurb {
+    display: none;
+  }
+
+  .bash-grid {
+    aspect-ratio: 3 / 4;
+    gap: 6px;
+  }
+
+  .game-hud > div:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bash-bug,
+  .bash-feature,
+  .bash-pop {
+    animation: none;
+  }
+}

@@ -38,7 +38,7 @@ src/
     pointer.ts             window-level pointer state for the WebGL layer
     env.ts                 reduced-motion / pointer / WebGL / low-power probes
     hooks.ts               in-view, reveal, local time, magnetic buttons
-  play/                    second Vite entry (play/index.html): mini game + visitor stats
+  play/                    second Vite entry (play/index.html): arcade (kit.ts + ui.tsx shared, one file per game)
   components/
     gl/                    World (Canvas), Swarm (points + shader), shapes, shaders, Effects
     Preloader, Cursor, Nav, Hero, Experience (pinned horizontal track),
@@ -53,7 +53,11 @@ src/
 - **Stack** — Category index rows with a hover wipe
 - **Education** — UTM, CGPA 4.0 fill, Dean's List across all 8 semesters
 - **Contact** — Email (copy button), phone, location, GitHub, LinkedIn, resume download
-- **Play** (`/portfolio/play/`, linked from the footer) — *Rate Limited*, a canvas mini game: you are the API gateway, catch requests, dodge DDoS packets, grab TLS certs for a shield. Best score stays in `localStorage`. The page also shows visitors today / all-time
+- **Arcade** (`/portfolio/play/`, linked from the footer) — three mini games picked with tabs (`#rate-limited`, `#stack`, `#bug-bash`):
+  - *Rate Limited* — you are the API gateway: catch requests, dodge DDoS packets, grab TLS certs for a shield
+  - *Stack the Layers* — one-tap tower stacker; each block is an architecture layer, overhang is cut off, perfect drops widen it again
+  - *Bug Bash* — whack-a-mole over a grid of source files: squash bugs before they ship, leave features alone
+  Best scores stay in `localStorage`; the page also shows visitors today / all-time
 
 ## Visitor Counter
 
