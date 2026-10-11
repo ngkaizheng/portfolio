@@ -2841,7 +2841,7 @@ a:hover .roll-ch > span:last-child,
 
 .footer {
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(5, auto);
   justify-content: space-between;
   align-items: center;
   gap: 16px;
@@ -2852,6 +2852,17 @@ a:hover .roll-ch > span:last-child,
   font-size: 11px;
   text-transform: uppercase;
   color: var(--fg-3);
+}
+
+.footer-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+
+.footer-play:hover {
+  color: #fff;
 }
 
 .footer-top {

@@ -33,10 +33,12 @@ To refresh the resume: replace the PDF at the same path, then update `src/data/c
 src/
   data/content.ts          all copy, metrics, projects, skills (resume-derived)
   lib/
+    visits.ts              visitor counter (Abacus)
     scroll.ts              Lenis smooth scroll + GSAP ScrollTrigger + shared scroll state
     pointer.ts             window-level pointer state for the WebGL layer
     env.ts                 reduced-motion / pointer / WebGL / low-power probes
     hooks.ts               in-view, reveal, local time, magnetic buttons
+  play/                    second Vite entry (play/index.html): mini game + visitor stats
   components/
     gl/                    World (Canvas), Swarm (points + shader), shapes, shaders, Effects
     Preloader, Cursor, Nav, Hero, Experience (pinned horizontal track),
@@ -51,6 +53,11 @@ src/
 - **Stack** — Category index rows with a hover wipe
 - **Education** — UTM, CGPA 4.0 fill, Dean's List across all 8 semesters
 - **Contact** — Email (copy button), phone, location, GitHub, LinkedIn, resume download
+- **Play** (`/portfolio/play/`, linked from the footer) — *Rate Limited*, a canvas mini game: you are the API gateway, catch requests, dodge DDoS packets, grab TLS certs for a shield. Best score stays in `localStorage`. The page also shows visitors today / all-time
+
+## Visitor Counter
+
+GitHub Pages has no backend, so visits are counted with [Abacus](https://abacus.jasoncameron.dev) (free hit counter, open CORS, no account). `src/lib/visits.ts` hits two keys in the `ngkaizheng-portfolio` namespace once per browser session: `total` and `day-YYYYMMDD` (GMT+8). Any page load counts (portfolio or game); the game page displays the numbers. No cookies or personal data; if the service is down the page shows "Visitor counter offline" and nothing else is affected. Tests never call it.
 
 ## Accessibility & Fallbacks
 

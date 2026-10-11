@@ -17,13 +17,14 @@ Personal portfolio for Ng Kai Zheng (React + TypeScript + Vite, GitHub Pages pro
 ### In Scope
 
 - Anything under `src/` (components, WebGL layer, styles, tests)
-- `index.html`, `package.json` / `package-lock.json` (dependencies), `vite.config.ts`
+- `index.html`, `play/index.html` (mini game page), `package.json` / `package-lock.json` (dependencies), `vite.config.ts`
 - `public/resume/NgKaiZheng_Resume.pdf`
 - `README.md`, `AGENTS.md`
 
 ### Out of Scope (ask first)
 
 - Backend services, analytics, trackers, third-party embeds
+  - Exception (owner-approved): the anonymous Abacus visitor counter in `src/lib/visits.ts`
 - Video assets (owner chose pure 3D)
 - Changing hosting (custom domain, `base` path) or the Pages workflow
 

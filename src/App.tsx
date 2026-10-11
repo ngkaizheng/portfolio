@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/ui'
 import { hasFinePointer, hasWebGL, prefersReducedMotion } from './lib/env'
 import { useMagneticAll, useRevealAll } from './lib/hooks'
 import { initScroll } from './lib/scroll'
+import { recordVisit } from './lib/visits'
 
 // three.js and the post-processing stack load after first paint.
 const World = lazy(() => import('./components/gl/World'))
@@ -32,6 +33,9 @@ function App() {
   const handleBooted = useCallback(() => setReady(true), [])
 
   useEffect(() => initScroll(), [])
+  useEffect(() => {
+    void recordVisit()
+  }, [])
   useRevealAll()
   useMagneticAll(magnetic)
 

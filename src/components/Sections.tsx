@@ -229,6 +229,9 @@ export function Contact() {
         <span>&copy; {new Date().getFullYear()} {profile.name}</span>
         <span>Custom GLSL &middot; React Three Fiber &middot; GSAP</span>
         <span>Johor {time} GMT+8</span>
+        <a className="footer-play" href={`${import.meta.env.BASE_URL}play/`} data-cursor="Play">
+          Bored? Play a game <ArrowIcon direction="up-right" />
+        </a>
         <button className="footer-top" onClick={scrollToTop} data-magnetic>
           Back to top <ArrowIcon direction="up" />
         </button>
