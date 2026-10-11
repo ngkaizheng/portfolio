@@ -3,6 +3,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import './App.css'
 import Preloader from './components/Preloader'
 import Cursor from './components/Cursor'
+import Terminal from './components/Terminal'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Experience from './components/Experience'
@@ -70,6 +71,7 @@ function App() {
       </div>
       <div className="grain" aria-hidden="true" />
       <Cursor />
+      <Terminal />
       <Preloader onDone={handleBooted} />
       <Nav />
       <main id="main" className={ready ? 'is-ready' : undefined}>

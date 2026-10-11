@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Now — Ng Kai Zheng</title>
+    <meta name="description" content="What Ng Kai Zheng is focused on at the moment." />
+    <meta name="theme-color" content="#050505" />
+    <script>
+      // Theme before first paint (src/lib/theme.ts owns the toggle).
+      try {
+        var t = localStorage.getItem('nkz-theme')
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = t
+      } catch (e) {}
+    </script>
+    <link rel="canonical" href="https://ngkaizheng.github.io/portfolio/now/" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/pages/now.tsx"></script>
+  </body>
+</html>

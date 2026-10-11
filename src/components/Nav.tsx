@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { onScroll, scrollToId, scrollToTop } from '../lib/scroll'
 import { pad, useLocalTime } from '../lib/hooks'
 import { resumeHref } from '../data/content'
-import { DownloadIcon, RollText } from './ui'
+import { DownloadIcon, RollText, ThemeToggle } from './ui'
 
 const NAV_LINKS = [
   { id: 'experience', label: 'Experience' },
@@ -83,6 +83,7 @@ export default function Nav() {
           <span className="nav-time" aria-label="Local time in Johor, GMT+8">
             JHB {time}
           </span>
+          <ThemeToggle />
           <a className="nav-resume" href={resumeHref} download data-cursor="Get">
             <DownloadIcon />
             <span>Resume</span>

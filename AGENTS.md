@@ -17,7 +17,7 @@ Personal portfolio for Ng Kai Zheng (React + TypeScript + Vite, GitHub Pages pro
 ### In Scope
 
 - Anything under `src/` (components, WebGL layer, styles, tests)
-- `index.html`, `play/index.html` (mini game page), `package.json` / `package-lock.json` (dependencies), `vite.config.ts`
+- `index.html`, `play/index.html`, `now/index.html`, `uses/index.html` (sub-pages), `package.json` / `package-lock.json` (dependencies), `vite.config.ts`
 - `public/resume/NgKaiZheng_Resume.pdf`
 - `README.md`, `AGENTS.md`
 

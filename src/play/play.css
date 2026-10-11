@@ -27,6 +27,12 @@
   color: var(--fg-3);
 }
 
+.play-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .play-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -152,6 +158,23 @@
 
 .game-lives i.is-on {
   background: var(--accent);
+}
+
+/* The game screen stays dark in both themes, like a cabinet screen. */
+.game-stage {
+  --bg: #050505;
+  --bg-2: #0b0b0b;
+  --fg: #ecebe4;
+  --fg-2: #a6a59d;
+  --fg-3: #6f6e69;
+  --line: rgba(236, 235, 228, 0.12);
+  --line-2: rgba(236, 235, 228, 0.24);
+  --accent: #d4ff3a;
+  --accent-soft: rgba(212, 255, 58, 0.16);
+  --accent-ink: #0a0a0a;
+  --hi: #fff;
+
+  color: var(--fg);
 }
 
 .game-stage {

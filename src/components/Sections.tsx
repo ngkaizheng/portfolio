@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { education, marqueeWords, profile, projects, resumeHref, skillCategories } from '../data/content'
 import { pad, useLocalTime } from '../lib/hooks'
 import { onScroll, scrollToTop } from '../lib/scroll'
+import { openTerminal } from '../lib/terminal'
 import { recordVisit, type VisitCounts } from '../lib/visits'
 import { Blueprint } from './Diagrams'
 import { ArrowIcon, Chips, DownloadIcon, RollText, SectionLabel, SplitHeading } from './ui'
@@ -254,8 +255,16 @@ export function Contact() {
       </div>
 
       <footer className="footer">
-        <span>&copy; {new Date().getFullYear()} {profile.name}</span>
-        <span>Custom GLSL &middot; React Three Fiber &middot; GSAP</span>
+        <span>
+          &copy; {new Date().getFullYear()} {profile.name} &middot; <a href={`${import.meta.env.BASE_URL}now/`}>/now</a>{' '}
+          &middot; <a href={`${import.meta.env.BASE_URL}uses/`}>/uses</a>
+        </span>
+        <span>
+          Custom GLSL &middot; R3F &middot; GSAP &middot;{' '}
+          <button className="footer-term" onClick={openTerminal} data-cursor="~">
+            <kbd>~</kbd> terminal
+          </button>
+        </span>
         <span>Johor {time} GMT+8</span>
         <Visitors />
         <a className="footer-play" href={`${import.meta.env.BASE_URL}play/`} data-cursor="Play">

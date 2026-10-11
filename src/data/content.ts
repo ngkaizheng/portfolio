@@ -487,3 +487,74 @@ export const education = {
   awardDetail: 'All Semesters (1–8)',
   semesters: 8,
 }
+
+/* ─── /now and /uses pages ───────────────────────────────── */
+
+// Items marked `todo` are placeholders for the owner to fill in. They show
+// (flagged) in `npm run dev` only and are left out of production builds.
+export interface InfoItem {
+  label: string
+  text: string
+  todo?: boolean
+}
+
+export interface InfoPageContent {
+  title: string
+  intro: string
+  updated: string
+  sections: { title: string; items: InfoItem[] }[]
+}
+
+export const nowPage: InfoPageContent = {
+  title: 'Now',
+  intro: 'What I am focused on at the moment.',
+  updated: 'Oct 2026',
+  sections: [
+    {
+      title: 'Work',
+      items: [{ label: currentRole.company, text: `${currentRole.role}, ${currentRole.period}.` }],
+    },
+    {
+      title: 'Next',
+      items: [{ label: 'Singapore', text: `Open to software engineering roles in Singapore. ${profile.relocation}.` }],
+    },
+    {
+      title: 'Learning',
+      items: [{ label: 'TODO', text: 'What are you learning right now? A course, a book, a technology.', todo: true }],
+    },
+    {
+      title: 'Building',
+      items: [{ label: 'TODO', text: 'A side project you are working on, if any.', todo: true }],
+    },
+  ],
+}
+
+export const usesPage: InfoPageContent = {
+  title: 'Uses',
+  intro: 'The stack I build with, and how I work with AI.',
+  updated: 'Oct 2026',
+  sections: [
+    {
+      title: 'Stack',
+      items: skillCategories.map((c) => ({ label: c.name, text: c.skills.join(', ') })),
+    },
+    {
+      title: 'Workflow',
+      items: [
+        {
+          label: 'Spec-driven, AI-assisted',
+          text: 'OpenSpec + Obsidian keep requirements and coding standards up to date, so context carries across sessions.',
+        },
+      ],
+    },
+    {
+      title: 'Setup',
+      items: [
+        { label: 'Editor / IDE', text: 'TODO', todo: true },
+        { label: 'Terminal', text: 'TODO', todo: true },
+        { label: 'Machine', text: 'TODO', todo: true },
+        { label: 'AI tools', text: 'TODO', todo: true },
+      ],
+    },
+  ],
+}

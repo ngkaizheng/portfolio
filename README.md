@@ -34,11 +34,14 @@ src/
   data/content.ts          all copy, metrics, projects, skills (resume-derived)
   lib/
     visits.ts              visitor counter (Abacus)
+    theme.ts               light/dark theme hook
+    terminal.ts            open-terminal event
     scroll.ts              Lenis smooth scroll + GSAP ScrollTrigger + shared scroll state
     pointer.ts             window-level pointer state for the WebGL layer
     env.ts                 reduced-motion / pointer / WebGL / low-power probes
     hooks.ts               in-view, reveal, local time, magnetic buttons
-  play/                    second Vite entry (play/index.html): arcade (kit.ts + ui.tsx shared, one file per game)
+  pages/                   /now and /uses entries (InfoPage)
+  play/                    Vite entry (play/index.html): arcade (kit.ts + ui.tsx shared, one file per game)
   components/
     gl/                    World (Canvas), Swarm (points + shader), shapes, shaders, Effects
     Preloader, Cursor, Nav, Hero, Experience (pinned horizontal track),
@@ -58,6 +61,13 @@ src/
   - *Stack the Layers* — one-tap tower stacker; each block is an architecture layer, overhang is cut off, perfect drops widen it again
   - *Bug Bash* — whack-a-mole over a grid of source files: squash bugs before they ship, leave features alone
   Best scores stay in `localStorage`; the page also shows visitors today / all-time
+
+- **/now** and **/uses** (`now/index.html`, `uses/index.html`) — short info pages; copy in `nowPage` / `usesPage` in `content.ts`. Items marked `todo` are owner placeholders: visible (flagged) in `npm run dev`, left out of production builds
+
+## Extras
+
+- **Terminal easter egg** — press `~` (or `` ` ``) anywhere on the portfolio, or click "~ terminal" in the footer. Commands: `help`, `whoami`, `ls`, `ls cases`, `stats`, `skills`, `education`, `contact`, `cat resume`, `play`, `now`, `uses`, `sudo hire-me`, `clear`, `exit`; ↑/↓ history, Tab completion, Esc closes. Every answer reads from `content.ts` (`src/components/Terminal.tsx`)
+- **Light / dark theme** — toggle in the nav (and on the sub-pages). Defaults to the OS preference, remembers an explicit choice in `localStorage` (`nkz-theme`); an inline script in each HTML entry applies it before first paint. Colours are tokens in `src/index.css`; the light theme inverts the WebGL layer with a CSS filter instead of re-shading the particles. Game screens and the terminal stay dark in both themes
 
 ## Visitor Counter
 

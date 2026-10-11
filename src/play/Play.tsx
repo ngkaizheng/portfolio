@@ -1,5 +1,6 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import { profile } from '../data/content'
+import { ThemeToggle } from '../components/ui'
 import { recordVisit, type VisitCounts } from '../lib/visits'
 import BugBash from './BugBash'
 import RateLimited from './RateLimited'
@@ -60,7 +61,10 @@ export default function Play() {
         <a className="play-back" href={home}>
           <span aria-hidden="true">&larr;</span> Back to portfolio
         </a>
-        <span className="play-brand">{profile.name}</span>
+        <div className="play-bar-right">
+          <span className="play-brand">{profile.name}</span>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="play-main">
