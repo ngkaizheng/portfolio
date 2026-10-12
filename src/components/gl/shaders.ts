@@ -63,12 +63,12 @@ uniform float uAspect;
 uniform float uIntro;
 uniform float uDim;
 // Shape weights, in SHAPES order (scene.ts):
-// core, network, gateway, observe, talk, layers, galaxy, text.
+// core, network, gateway, observe, talk, layers, solar, text.
 uniform float uW[8];
 
 attribute vec3 aNetwork;
 attribute vec3 aLayers;
-attribute vec3 aGalaxy;
+attribute vec3 aSolar;
 attribute vec3 aText;
 attribute vec3 aTalk;
 attribute vec3 aGate;
@@ -107,8 +107,10 @@ float packet(vec2 edge, float speed) {
   return smoothstep(0.86, 0.99, f);
 }
 
-// Brightness boost written by the procedural shapes below.
+// Brightness boost written by the procedural shapes below, and how far to
+// pull the particle toward the sun's amber.
 float gGlow;
+float gWarm;
 
 // Position in the gateway's traffic cycle (0..1): burst at 0, refill-rate
 // requests until ~0.46, then a lull while the bucket refills.
@@ -229,6 +231,69 @@ vec3 scopeShape() {
   return p;
 }
 
+// Orbit radius (x) and body radius (y) per planet; matches shapes.ts.
+vec2 planet(float lane) {
+  if (lane < 0.5) return vec2(0.78, 0.07);
+  if (lane < 1.5) return vec2(1.08, 0.1);
+  if (lane < 2.5) return vec2(1.42, 0.11);
+  if (lane < 3.5) return vec2(1.78, 0.08);
+  if (lane < 4.5) return vec2(2.32, 0.22);
+  return vec2(2.82, 0.17);
+}
+
+// Where planet lane is on its orbit now; inner planets run faster.
+vec3 planetCentre(float lane) {
+  float r = planet(lane).x;
+  float a = lane * 2.39 + 1.1 + uTime * 0.55 / pow(r, 1.5);
+  return vec3(cos(a) * r, 0.0, sin(a) * r);
+}
+
+vec3 solarShape() {
+  float u = aSolar.x;
+  float lane = aSolar.y;
+  float kind = aSolar.z;
+  float h1 = hash(aRand * 91.7 + 1.3);
+  float h2 = hash(aRand * 47.1 + 7.9);
+  float h3 = hash(aRand * 13.3 + 3.1);
+  vec3 dir = normalize(vec3(h1, h2, h3) * 2.0 - 1.0 + 1e-4);
+  vec3 p;
+  gGlow = 0.0;
+  gWarm = 0.0;
+  if (kind < 0.5) {
+    // sun: dense core, flickering corona
+    float shell = u < 0.7 ? 0.42 * pow(h1, 0.35) : 0.42 + pow(u, 3.0) * 0.32;
+    shell += snoise(dir * 2.0 + uTime * 0.4) * 0.03;
+    p = dir * shell;
+    gGlow = u < 0.7 ? 0.55 : 0.3;
+    gWarm = 1.0;
+  } else if (kind < 1.5) {
+    // faint orbit path
+    float r = planet(lane).x;
+    float a = u * TAU;
+    p = vec3(cos(a) * r, (h1 - 0.5) * 0.015, sin(a) * r);
+    gGlow = -0.45;
+  } else if (kind < 2.5) {
+    // planet body, spinning slowly
+    vec2 pl = planet(lane);
+    p = planetCentre(lane) + rotY(uTime * 0.6) * dir * pl.y * mix(0.75, 1.0, u);
+    gGlow = 0.4;
+  } else if (kind < 3.5) {
+    // asteroid belt between the 4th and 5th orbit
+    float r = mix(1.96, 2.14, h1);
+    float a = u * TAU + uTime * 0.55 / pow(r, 1.5);
+    p = vec3(cos(a) * r, (h2 - 0.5) * 0.06, sin(a) * r);
+    gGlow = -0.15;
+  } else {
+    // ring around the 6th planet, tilted
+    float r = mix(0.26, 0.38, h1);
+    float a = u * TAU;
+    p = planetCentre(5.0) + rotX(0.45) * vec3(cos(a) * r, 0.0, sin(a) * r);
+    gGlow = 0.1;
+  }
+  p = rotX(0.42) * p;
+  return p;
+}
+
 void main() {
   // Sharpen the weights per particle: some particles commit to the
   // incoming shape early, others late, so morphs read as a wave.
@@ -246,9 +311,14 @@ void main() {
 
   vec3 p = vec3(0.0);
   float glow = 0.0;
+  float sunlit = 0.0;
   if (w0 > 0.001) {
+    // brain: a faint breath that keeps the folds legible, and sparks of
+    // activity drifting across the cortex
     float breath = snoise(position * 0.85 + vec3(0.0, 0.0, uTime * 0.22));
-    p += w0 * (position + normalize(position + 1e-4) * breath * 0.26);
+    p += w0 * (position * (1.0 + breath * 0.025));
+    float fire = snoise(position * 1.6 + vec3(uTime * 0.35, 0.0, uTime * 0.2));
+    glow += w0 * smoothstep(0.55, 0.85, fire) * 0.7;
   }
   if (w1 > 0.001) p += w1 * aNetwork;
   if (w2 > 0.001) {
@@ -262,11 +332,9 @@ void main() {
   if (w4 > 0.001) p += w4 * aTalk;
   if (w5 > 0.001) p += w5 * aLayers;
   if (w6 > 0.001) {
-    // galaxy arms rotate, faster toward the centre
-    float spin = uTime * 0.12 / (0.6 + length(aGalaxy.xz));
-    vec3 g = aGalaxy;
-    g.xz = mat2(cos(spin), -sin(spin), sin(spin), cos(spin)) * g.xz;
-    p += w6 * g;
+    p += w6 * solarShape();
+    glow += w6 * gGlow;
+    sunlit += w6 * gWarm;
   }
   if (w7 > 0.001) p += w7 * aText;
 
@@ -275,7 +343,7 @@ void main() {
 
   // Curl-ish drift; explodes mid-morph and when scrolling fast. Crisp
   // shapes (text, people, gateway) drift less.
-  float crisp = w7 * 0.8 + (w2 + w3 + w4) * 0.6;
+  float crisp = w7 * 0.8 + (w2 + w3 + w4) * 0.6 + w0 * 0.6;
   vec3 np = p * 0.55 + vec3(uTime * 0.07);
   vec3 drift = vec3(snoise(np), snoise(np + 17.3), snoise(np + 41.7));
   p += drift * (0.03 + transit * 0.6 + uVelocity * 0.35) * (1.0 - crisp);
@@ -306,9 +374,14 @@ void main() {
   col = mix(col, acid, step(0.94, aRand));
   float lit = clamp(pulse * 1.4 + glow + force * 1.3 + transit * 0.18, 0.0, 1.0);
   col = mix(col, acid * 1.5, lit);
+  col = mix(col, vec3(1.0, 0.68, 0.28) * 1.25, sunlit);
   vColor = col;
 
-  vAlpha = (0.38 + 0.5 * aRand + pulse * 1.2 + glow * 0.6) * uIntro * uDim;
+  // Brain: fade the far side of the cortex so the near folds read cleanly.
+  float facing = (normalMatrix * normalize(position - vec3(0.0, 0.1, 0.0) + 1e-4)).z;
+  float nearSide = mix(1.0, 0.18 + 0.82 * smoothstep(-0.45, 0.2, facing), w0);
+
+  vAlpha = (0.38 + 0.5 * aRand + pulse * 1.2 + glow * 0.6) * uIntro * uDim * nearSide;
 
   float size = uSize * (0.55 + aRand * 0.95 + pulse * 1.6 + glow * 0.6 + force * 0.8);
   gl_PointSize = size * uPixelRatio / -mv.z;

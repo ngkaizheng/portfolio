@@ -165,6 +165,8 @@ main {
   inset: 0;
   z-index: 300;
   pointer-events: none;
+  /* White under difference inverts whatever is behind it, so the cursor
+     reads on both themes (--hi turns black in light mode, a no-op here). */
   mix-blend-mode: difference;
 }
 
@@ -181,7 +183,7 @@ main {
   height: 6px;
   margin: -3px 0 0 -3px;
   border-radius: 50%;
-  background: var(--hi);
+  background: #fff;
 }
 
 .cursor-ring {
@@ -196,7 +198,7 @@ main {
   top: -20px;
   width: 40px;
   height: 40px;
-  border: 1px solid var(--hi);
+  border: 1px solid #fff;
   border-radius: 50%;
   transition:
     transform 0.45s var(--ease-out),
@@ -209,7 +211,7 @@ main {
 
 .cursor.has-label .cursor-ring::before {
   transform: scale(2.3);
-  background: var(--hi);
+  background: #fff;
 }
 
 .cursor.is-pressed .cursor-ring::before {

@@ -6,7 +6,7 @@
 // illustrate a single case (gateway, observe, talk) are pinned to the
 // panel's [data-scene-anchor] frame, so they slide with the panel.
 
-export const SHAPES = ['core', 'network', 'gateway', 'observe', 'talk', 'layers', 'galaxy', 'text'] as const
+export const SHAPES = ['core', 'network', 'gateway', 'observe', 'talk', 'layers', 'solar', 'text'] as const
 export type ShapeKey = (typeof SHAPES)[number]
 
 export const ANCHORED: ReadonlySet<ShapeKey> = new Set(['gateway', 'observe', 'talk'])
@@ -28,7 +28,7 @@ export const scene = {
 
 const SECTION_SHAPES: [string, ShapeKey][] = [
   ['projects', 'layers'],
-  ['stack', 'galaxy'],
+  ['stack', 'solar'],
   ['contact', 'text'],
 ]
 

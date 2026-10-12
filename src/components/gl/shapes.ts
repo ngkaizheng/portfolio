@@ -1,9 +1,9 @@
 // Particle target layouts. Each generator returns `count` xyz triples; the
 // vertex shader morphs between them as the page scrolls.
-//   0 core     – breathing sphere (hero)
+//   0 core     – brain with winding gyri (hero)
 //   1 network  – orchestrator + agents linked by data streams (experience)
 //   2 layers   – stacked architecture tiers with connectors (projects)
-//   3 galaxy   – spiral of everything in the stack (skills)
+//   3 solar    – sun and orbiting planets, procedural (skills)
 //   4 text     – the word HELLO (contact)
 // Network and layer points that sit on a link also carry (t along link, link id)
 // so the shader can run packets along them.
@@ -57,30 +57,64 @@ export function randoms(count: number) {
   return out
 }
 
+// Gyroid level set, domain-warped so its zero contour wanders like the folds
+// (gyri) of a cortex instead of tiling regularly.
+function folds(x: number, y: number, z: number) {
+  const f = 4.6
+  const wx = x * f + 0.55 * Math.sin(y * 2.3 + 1.7)
+  const wy = y * f + 0.55 * Math.sin(z * 2.9 + 0.4)
+  const wz = z * f + 0.55 * Math.sin(x * 2.1 + 2.6)
+  return Math.sin(wx) * Math.cos(wy) + Math.sin(wy) * Math.cos(wz) + Math.sin(wz) * Math.cos(wx)
+}
+
+// Side-on brain: two cerebral hemispheres split by the longitudinal fissure,
+// their surface traced as winding gyri, plus a ridged cerebellum and stem.
+// Front faces +x, top +y.
 export function core(count: number) {
   const out = new Float32Array(count * 3)
-  const golden = Math.PI * (3 - Math.sqrt(5))
   for (let i = 0; i < count; i++) {
-    const inner = rand() < 0.12
-    let x: number
-    let y: number
-    let z: number
-    if (inner) {
-      ;[x, y, z] = unitVector()
-      const r = 1.55 * Math.cbrt(rand()) * 0.9
-      x *= r
-      y *= r
-      z *= r
+    const pick = rand()
+    let p: Vec3
+    if (pick < 0.8) {
+      // Cerebrum: rejection-sample the hemisphere surface, keeping points
+      // near a fold line so the cortex reads as strands, a few in between.
+      const side = rand() < 0.5 ? -1 : 1
+      for (;;) {
+        const [ux, uy, uz] = unitVector()
+        // flat medial face, flatter underside, fuller frontal lobe
+        const lz = side * uz < 0 ? uz * 0.28 : uz
+        const ly = uy < 0 ? uy * 0.78 : uy
+        const lx = ux * (ux > 0 ? 1.05 : 1)
+        const x = lx * 1.55
+        const y = ly * 1.08 + 0.18 - 0.12 * ux * ux
+        const z = lz * 0.74 + side * 0.3
+        const band = Math.abs(folds(x, y, z))
+        if (band < 0.14 || rand() < 0.012) {
+          const sink = band < 0.14 ? 1 : 0.94
+          p = [x * sink, y * sink, z]
+          break
+        }
+      }
+    } else if (pick < 0.94) {
+      // Cerebellum: tucked under the back, with tight horizontal folia.
+      for (;;) {
+        const [ux, uy, uz] = unitVector()
+        const x = -1.02 + ux * 0.52
+        const y = -0.78 + uy * 0.34
+        const z = uz * 0.88
+        if (Math.abs(Math.sin(y * 34 + x * 4)) > 0.82 || rand() < 0.06) {
+          p = [x, y, z]
+          break
+        }
+      }
     } else {
-      y = 1 - (i / (count - 1)) * 2
-      const r = Math.sqrt(1 - y * y)
-      const theta = golden * i
-      const radius = 1.55 + gaussian() * 0.03
-      x = Math.cos(theta) * r * radius
-      z = Math.sin(theta) * r * radius
-      y *= radius
+      // Brain stem.
+      const t = rand()
+      const [ux, , uz] = unitVector()
+      const r = 0.17 - t * 0.04
+      p = [-0.48 - t * 0.28 + ux * r, -0.55 - t * 0.95, uz * r]
     }
-    out.set([x, y, z], i * 3)
+    out.set(p, i * 3)
   }
   return out
 }
@@ -163,25 +197,45 @@ export function layers(count: number) {
   return { positions: out, edges: edge }
 }
 
-export function galaxy(count: number) {
-  const out = new Float32Array(count * 3)
-  const arms = 3
-  const maxR = 2.6
-  for (let i = 0; i < count; i++) {
-    if (rand() < 0.14) {
-      const [x, y, z] = unitVector()
-      const r = Math.pow(rand(), 2) * 0.45
-      out.set([x * r, y * r * 0.6, z * r], i * 3)
-      continue
-    }
-    const r = Math.pow(rand(), 0.6) * maxR
-    const arm = Math.floor(rand() * arms)
-    const spread = gaussian() * 0.32 * (1 - r / (maxR * 1.4))
-    const angle = (arm / arms) * Math.PI * 2 + r * 1.9 + spread
-    const thickness = gaussian() * 0.06 * (1.4 - r / maxR)
-    out.set([Math.cos(angle) * r, thickness, Math.sin(angle) * r], i * 3)
+// Solar system: the shader orbits the planets, so only (u, lane, kind) is
+// stored, like the procedural shapes further down. Lane is the planet index.
+//   kind 0 sun, 1 orbit paths, 2 planets, 3 asteroid belt, 4 ringed planet's ring
+// Keep in step with planet() in shaders.ts.
+const PLANET_SIZE = [0.07, 0.1, 0.11, 0.08, 0.22, 0.17]
+const ORBIT = [0.78, 1.08, 1.42, 1.78, 2.32, 2.82]
+
+function weighted(weights: number[]) {
+  const total = weights.reduce((a, b) => a + b, 0)
+  let pick = rand() * total
+  for (let i = 0; i < weights.length; i++) {
+    pick -= weights[i]
+    if (pick <= 0) return i
   }
-  rotate(out, 1.08, 0, 0.32)
+  return weights.length - 1
+}
+
+export function solarParams(count: number) {
+  const out = new Float32Array(count * 3)
+  const bodyWeights = PLANET_SIZE.map((s) => s * s + 0.004)
+  for (let i = 0; i < count; i++) {
+    const r = rand()
+    let kind: number
+    let lane = 0
+    if (r < 0.2) {
+      kind = 0
+    } else if (r < 0.48) {
+      kind = 1
+      lane = weighted(ORBIT)
+    } else if (r < 0.78) {
+      kind = 2
+      lane = weighted(bodyWeights)
+    } else if (r < 0.93) {
+      kind = 3
+    } else {
+      kind = 4
+    }
+    out.set([rand(), lane, kind], i * 3)
+  }
   return out
 }
 

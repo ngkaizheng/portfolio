@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { core, galaxy, gatewayParams, layers, network, randoms, scopeParams, talk, text } from './shapes'
+import { core, gatewayParams, layers, network, randoms, scopeParams, solarParams, talk, text } from './shapes'
 import { fragmentShader, vertexShader } from './shaders'
 import { ANCHORED, SHAPES, sampleScene, scene, type ShapeKey } from './scene'
 import { scrollState } from '../../lib/scroll'
@@ -14,13 +14,13 @@ import { prefersReducedMotion } from '../../lib/env'
 // screens where copy sits directly over the swarm.
 type Placement = [number, number, number, number, number]
 const WIDE: Record<ShapeKey, Placement> = {
-  core: [1.35, 0.25, 1, 1, 0.8],
+  core: [1.35, 0.25, 0.92, 1, 0.8],
   network: [0, 0, 1.05, 0.55, 0.8],
   gateway: [0, 0, 0.7, 1, 0.22],
   observe: [0, 0, 0.7, 1, 0.22],
   talk: [0, 0, 0.8, 1, 0.3],
   layers: [1.9, 0, 0.95, 0.6, 0.8],
-  galaxy: [-1.7, 0, 1, 0.75, 0.8],
+  solar: [-1.7, 0, 0.95, 0.8, 0.6],
   text: [0, 0.15, 1, 1, 0],
 }
 const NARROW: Record<ShapeKey, Placement> = {
@@ -30,7 +30,7 @@ const NARROW: Record<ShapeKey, Placement> = {
   observe: [0, 0, 0.35, 0.95, 0.22],
   talk: [0, 0, 0.4, 0.95, 0.3],
   layers: [0, 0.6, 0.5, 0.32, 0.8],
-  galaxy: [0, 0.4, 0.55, 0.45, 0.8],
+  solar: [0, 0.4, 0.52, 0.5, 0.6],
   text: [0, 0.9, 0.36, 1, 0],
 }
 
@@ -66,7 +66,7 @@ export default function Swarm({ count, fontFamily }: { count: number; fontFamily
     g.setAttribute('aTalkEdge', new THREE.BufferAttribute(people.edges, 2))
     g.setAttribute('aLayers', new THREE.BufferAttribute(lay.positions, 3))
     g.setAttribute('aLayersEdge', new THREE.BufferAttribute(lay.edges, 2))
-    g.setAttribute('aGalaxy', new THREE.BufferAttribute(galaxy(count), 3))
+    g.setAttribute('aSolar', new THREE.BufferAttribute(solarParams(count), 3))
     g.setAttribute('aText', new THREE.BufferAttribute(text(count, 'HELLO', fontFamily), 3))
     g.setAttribute('aRand', new THREE.BufferAttribute(randoms(count), 1))
     return g
