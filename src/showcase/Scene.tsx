@@ -6,6 +6,7 @@ import { ToneMappingMode } from 'postprocessing'
 import { HalfFloatType, ShaderMaterial, Vector2, Vector3 } from 'three'
 import { fragment, vertex } from './shader.ts'
 import { flight, smoothstep } from './state.ts'
+import Particles from './Particles.tsx'
 
 const mix = (a: number, b: number, t: number) => a + (b - a) * t
 
@@ -73,7 +74,7 @@ function BlackHole({ lowPower }: { lowPower: boolean }) {
   )
 }
 
-export default function Scene({ lowPower }: { lowPower: boolean }) {
+export default function Scene({ lowPower, onReady }: { lowPower: boolean; onReady: () => void }) {
   // Start sharp, then drop resolution if the device cannot hold frame rate.
   const [dpr, setDpr] = useState(() => Math.min(window.devicePixelRatio, lowPower ? 1 : 1.5))
   return (
@@ -81,10 +82,12 @@ export default function Scene({ lowPower }: { lowPower: boolean }) {
       className="sc-canvas"
       flat
       dpr={dpr}
+      onCreated={onReady}
       gl={{ antialias: false, powerPreference: 'high-performance' }}
     >
       <PerformanceMonitor onDecline={() => setDpr((d) => Math.max(0.5, d * 0.7))} />
       <BlackHole lowPower={lowPower} />
+      <Particles />
       <EffectComposer multisampling={0} frameBufferType={HalfFloatType}>
         <Bloom mipmapBlur luminanceThreshold={0.9} luminanceSmoothing={0.25} intensity={0.4} />
         <ChromaticAberration offset={[0.0012, 0.0008]} />

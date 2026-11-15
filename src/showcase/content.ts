@@ -38,6 +38,14 @@ export const projects = [
   {
     name: 'Pet Appointment System',
     tagline: 'Full-Stack Cloud-Native',
+    tech: ['C#', '.NET', 'SQL Server', 'React', 'Azure', 'AWS'],
+    details: [
+      'Implemented secure authentication using JWT + OAuth 2.0 (Google) for flexible user access.',
+      'Applied CQRS via MediatR for clear separation of concerns and maintainable code.',
+      'Designed optimized SQL Server schemas with triggers to enforce business rules.',
+      'Automated appointment reminders using Quartz.NET scheduling with WhatsApp API integration.',
+      'Deployed to Azure App Services and AWS EC2/CloudFront with DNS managed via Route 53.',
+    ],
     year: '2025',
     summary:
       'A full-stack pet appointment management system built with Clean Architecture, CQRS, and cloud-native deployment.',
@@ -45,6 +53,12 @@ export const projects = [
   {
     name: 'AI-Powered RAG Chat',
     tagline: 'Retrieval-Augmented Generation',
+    tech: ['.NET', 'Azure AI Services', 'RAG'],
+    details: [
+      'Built a .NET Web API that processes user queries through Azure AI embeddings.',
+      'Implemented retrieval-augmented generation to ground responses in a custom knowledge corpus.',
+      'Chat orchestration handles context management and response generation.',
+    ],
     year: '2025',
     summary:
       'A .NET Web API implementing RAG using Azure AI services to answer queries contextually from a custom blog-post corpus.',
@@ -52,6 +66,12 @@ export const projects = [
   {
     name: 'Blockchain Multiplayer Game',
     tagline: 'Final Year Project',
+    tech: ['Unity', 'Azure PlayFab', 'ThirdWeb', 'Polygon', 'Photon Fusion'],
+    details: [
+      'Architected scalable backend using Azure PlayFab for player data, authentication, and server-side logic.',
+      'Integrated ThirdWeb smart contracts on Polygon for NFT ownership verification and transactions.',
+      'Utilized Photon Fusion for authoritative server networking with state synchronization.',
+    ],
     year: '2025',
     summary:
       'A multiplayer game with blockchain-verified NFT ownership, authoritative server networking, and scalable backend services.',

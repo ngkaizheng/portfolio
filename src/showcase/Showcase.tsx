@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { education, experience, identity, projects, skills } from './content.ts'
 import { flight, smoothstep } from './state.ts'
+import { startDrone, type Drone } from './sound.ts'
 
 const Scene = lazy(() => import('./Scene.tsx'))
 
@@ -27,6 +28,31 @@ export default function Showcase() {
   const [lowPower] = useState(() => window.matchMedia('(max-width: 820px), (pointer: coarse)').matches)
   const root = useRef<HTMLDivElement>(null)
   const bar = useRef<HTMLDivElement>(null)
+  const drone = useRef<Drone | null>(null)
+  const dialog = useRef<HTMLDialogElement>(null)
+  const [ready, setReady] = useState(false)
+  const [sound, setSound] = useState(false)
+  const [openProject, setOpenProject] = useState<number | null>(null)
+  const project = openProject === null ? null : projects[openProject]
+
+  const toggleSound = () => {
+    if (drone.current) {
+      drone.current.stop()
+      drone.current = null
+    } else {
+      drone.current = startDrone()
+    }
+    setSound(!sound)
+  }
+
+  useEffect(() => {
+    const el = dialog.current
+    if (!el) return
+    if (openProject !== null && !el.open) el.showModal()
+    if (openProject === null && el.open) el.close()
+  }, [openProject])
+
+  useEffect(() => () => drone.current?.stop(), [])
 
   useEffect(() => {
     if (!webgl) return
@@ -62,6 +88,7 @@ export default function Showcase() {
         el.style.visibility = o < 0.01 ? 'hidden' : 'visible'
         el.style.pointerEvents = o > 0.6 ? 'auto' : 'none'
       })
+      drone.current?.update(flight.p)
       if (bar.current) bar.current.style.transform = `scaleX(${flight.p.toFixed(4)})`
       raf = requestAnimationFrame(tick)
     }
@@ -80,14 +107,25 @@ export default function Showcase() {
     <div ref={root} className={webgl ? 'sc' : 'sc sc-static'}>
       {webgl && (
         <Suspense fallback={null}>
-          <Scene lowPower={lowPower} />
+          <Scene lowPower={lowPower} onReady={() => setReady(true)} />
         </Suspense>
       )}
+      <div className={ready || !webgl ? 'sc-loader sc-loader-done' : 'sc-loader'} aria-hidden="true">
+        <span className="sc-loader-ring" />
+        <span>Approaching event horizon</span>
+      </div>
       <div className="sc-progress" ref={bar} aria-hidden="true" />
 
       <header className="sc-top">
         <span>{identity.name.toUpperCase()}</span>
-        <a href={identity.classicHref}>Classic site ↗</a>
+        <nav>
+          {webgl && (
+            <button type="button" onClick={toggleSound} aria-pressed={sound}>
+              Sound {sound ? 'on' : 'off'}
+            </button>
+          )}
+          <a href={identity.classicHref}>Classic site ↗</a>
+        </nav>
       </header>
 
       <main className="sc-acts">
@@ -124,14 +162,15 @@ export default function Showcase() {
 
         <section className="sc-act sc-right">
           <p className="sc-label">02 — Projects</p>
-          {projects.map((project) => (
-            <article className="sc-project" key={project.name}>
-              <p className="sc-meta">
-                {project.tagline} · {project.year}
-              </p>
-              <h2>{project.name}</h2>
-              <p>{project.summary}</p>
-            </article>
+          {projects.map((item, i) => (
+            <button type="button" className="sc-project" key={item.name} onClick={() => setOpenProject(i)}>
+              <span className="sc-meta">
+                {item.tagline} · {item.year}
+              </span>
+              <strong>{item.name}</strong>
+              <span className="sc-summary">{item.summary}</span>
+              <span className="sc-more">Open details +</span>
+            </button>
           ))}
         </section>
 
@@ -171,6 +210,38 @@ export default function Showcase() {
           </div>
         </section>
       </main>
+
+      <dialog
+        className="sc-dialog"
+        ref={dialog}
+        onClose={() => setOpenProject(null)}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setOpenProject(null)
+        }}
+      >
+        {project && (
+          <div className="sc-dialog-body">
+            <p className="sc-label">
+              {project.tagline} · {project.year}
+            </p>
+            <h2>{project.name}</h2>
+            <p>{project.summary}</p>
+            <ul className="sc-details">
+              {project.details.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+            <ul className="sc-skills">
+              {project.tech.map((tech) => (
+                <li key={tech}>{tech}</li>
+              ))}
+            </ul>
+            <button type="button" className="sc-close" onClick={() => setOpenProject(null)}>
+              Close
+            </button>
+          </div>
+        )}
+      </dialog>
     </div>
   )
 }
