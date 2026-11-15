@@ -551,6 +551,10 @@ function SideNav({ active, scrollTo }: { active: string; scrollTo: (id: string) 
           <span className="sidenav-label">{link.label}</span>
         </a>
       ))}
+      <a href={`${import.meta.env.BASE_URL}showcase.html`} className="sidenav-link">
+        <span className="sidenav-dot" />
+        <span className="sidenav-label">3D Showcase</span>
+      </a>
     </nav>
   )
 }
