@@ -1,0 +1,425 @@
+import { useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import type {
+  AbacShowcase,
+  CompareShowcase,
+  FlowsShowcase,
+  ModulesShowcase,
+  PipelineShowcase,
+  Project,
+  SceneShowcase,
+  Showcase,
+} from '../data/content'
+import { pad, useInView } from '../lib/hooks'
+import { hasFinePointer } from '../lib/env'
+
+// Architecture animations. Loops only run while the figure is on screen
+// (`is-live`); one-shot reveals key off `is-seen`.
+
+const vars = (v: Record<string, string | number>) => v as CSSProperties
+
+// Approximate advance of the 10.5px mono labels inside SVG diagrams.
+const CHAR_W = 6.3
+
+function liveClass(seen: boolean, visible: boolean) {
+  return `${seen ? ' is-seen' : ''}${visible ? ' is-live' : ''}`
+}
+
+/* ─── Case-study figures ─────────────────────────────────── */
+
+function Pipeline({ stages }: PipelineShowcase) {
+  return (
+    <div className="pipe" style={vars({ '--n': stages.length })}>
+      <div className="pipe-track" aria-hidden="true">
+        <i className="pipe-packet" />
+      </div>
+      <ol className="pipe-nodes">
+        {stages.map((stage, i) => (
+          <li key={stage} style={vars({ '--i': i })}>
+            <span className="pipe-step">{pad(i + 1)}</span>
+            {stage}
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+function Timeline({ before, after, improvement }: CompareShowcase) {
+  // One cell per day: two weeks before, one week after.
+  const rows = [
+    { ...before, days: 14, after: false },
+    { ...after, days: 7, after: true },
+  ]
+  return (
+    <div className="tl">
+      {rows.map((row) => (
+        <div className={`tl-row${row.after ? ' is-after' : ''}`} key={row.label}>
+          <p className="tl-label">
+            <span>{row.label}</span>
+            <strong>{row.value}</strong>
+            <em>{row.sublabel}</em>
+          </p>
+          <div className="tl-bar" aria-hidden="true">
+            {Array.from({ length: row.days }, (_, i) => (
+              <i key={i} style={vars({ '--i': i })} />
+            ))}
+          </div>
+        </div>
+      ))}
+      <p className="fig-stamp">{improvement}</p>
+    </div>
+  )
+}
+
+function SplitDeploy({ before, after, improvement }: CompareShowcase) {
+  return (
+    <div className="sd">
+      <div className="sd-col">
+        <p className="sd-head">
+          <span>{before.label}</span>
+          <strong>{before.value}</strong>
+        </p>
+        <div className="sd-mono" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <i key={i} />
+          ))}
+        </div>
+        <p className="sd-sub">{before.sublabel}</p>
+      </div>
+      <span className="sd-arrow" aria-hidden="true">
+        &rarr;
+      </span>
+      <div className="sd-col is-after">
+        <p className="sd-head">
+          <span>{after.label}</span>
+          <strong>{after.value}</strong>
+        </p>
+        <div className="sd-mods" aria-hidden="true">
+          {[0, 1, 2, 3].map((i) => (
+            <i key={i} style={vars({ '--i': i })} />
+          ))}
+        </div>
+        <p className="sd-sub">{after.sublabel}</p>
+      </div>
+      <p className="fig-stamp">{improvement}</p>
+    </div>
+  )
+}
+
+function Flows({ flows }: FlowsShowcase) {
+  return (
+    <div className="flows">
+      {flows.map((flow) => (
+        <div className={`flow flow-${flow.name.toLowerCase()}`} key={flow.name}>
+          <p className="flow-name">{flow.name}</p>
+          {flow.name === 'Sequential' && (
+            <div className="flow-seq" style={vars({ '--n': flow.steps.length })}>
+              <div className="flow-track" aria-hidden="true">
+                <i className="flow-packet" />
+              </div>
+              <ol>
+                {flow.steps.map((step, i) => (
+                  <li key={step} style={vars({ '--i': i })}>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+          {flow.name === 'Parallel' && (
+            <div className="flow-par">
+              <span className="flow-fork" aria-hidden="true" />
+              <ol>
+                {flow.steps.map((step) => (
+                  <li key={step}>
+                    <span className="flow-lane" aria-hidden="true">
+                      <i className="flow-packet" />
+                    </span>
+                    <span className="flow-node">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+          {flow.name === 'Percentage' && (
+            <div className="flow-pct">
+              <div className="flow-meter" aria-hidden="true">
+                <i />
+                <span className="flow-threshold" />
+              </div>
+              <ol>
+                {flow.steps.map((step, i) => (
+                  <li key={step} className={i === flow.steps.length - 1 ? 'flow-node flow-target' : 'flow-meta'}>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Modules({ modules, team, timeline }: ModulesShowcase) {
+  return (
+    <div className="mods">
+      <div className="mods-grid">
+        {modules.map((m, i) => (
+          <div className="mod" key={m.name} style={vars({ '--i': i })}>
+            <p className="mod-name">{m.name}</p>
+            <ol className="mod-scope">
+              {m.scope.map((s) => (
+                <li key={s}>{s}</li>
+              ))}
+            </ol>
+            <span className="mod-stamp">Delivered</span>
+            <i className="mod-scan" aria-hidden="true" />
+          </div>
+        ))}
+      </div>
+      <dl className="mods-foot">
+        <div>
+          <dt>Team</dt>
+          <dd>{team}</dd>
+        </div>
+        <div>
+          <dt>Timeline</dt>
+          <dd>{timeline}</dd>
+        </div>
+      </dl>
+    </div>
+  )
+}
+
+// ABAC: attributes flow into the policy, the decision alternates between
+// permit and deny (the context attribute mismatches on the deny cycle),
+// and the decision is enforced in both the UI and the API.
+function Abac({ inputs, policy, decisions, enforce }: AbacShowcase) {
+  const policyAt = { x: 214, y: 125 }
+  const decisionAt = { x: 340, y: 125 }
+  const enforceAt = [
+    { x: 340, y: 42 },
+    { x: 340, y: 208 },
+  ]
+  const inputAt = inputs.map((_, i) => ({ x: 80, y: 36 + i * (180 / Math.max(inputs.length - 1, 1)) }))
+  const width = (label: string) => label.length * CHAR_W + 22
+  const edges = [
+    ...inputAt.map((from, i) => ({ from, to: policyAt, stage: 'in', mismatch: i === inputs.length - 1 })),
+    { from: policyAt, to: decisionAt, stage: 'mid', mismatch: false },
+    ...enforceAt.map((to) => ({ from: decisionAt, to, stage: 'out', mismatch: false })),
+  ]
+  const label = `${inputs.join(', ')} are evaluated by the ${policy}; the ${decisions.join(' or ')} decision is enforced in ${enforce.join(' and ')}.`
+
+  return (
+    <svg className="abac" viewBox="0 0 420 250" role="img" aria-label={label}>
+      {edges.map((e, i) => (
+        <g key={i} className={`abac-edge is-${e.stage}${e.mismatch ? ' is-mismatch' : ''}`}>
+          <line x1={e.from.x} y1={e.from.y} x2={e.to.x} y2={e.to.y} />
+          <circle
+            cx={e.from.x}
+            cy={e.from.y}
+            r="3.4"
+            style={vars({ '--dx': `${e.to.x - e.from.x}px`, '--dy': `${e.to.y - e.from.y}px` })}
+          />
+        </g>
+      ))}
+      {inputs.map((input, i) => (
+        <g
+          key={input}
+          className={`abac-node${i === inputs.length - 1 ? ' is-mismatch' : ''}`}
+          transform={`translate(${inputAt[i].x} ${inputAt[i].y})`}
+        >
+          <rect x={-width(input) / 2} y={-13} width={width(input)} height={26} rx={2} />
+          <text textAnchor="middle" dominantBaseline="central">
+            {input}
+          </text>
+        </g>
+      ))}
+      <g className="abac-node abac-policy" transform={`translate(${policyAt.x} ${policyAt.y})`}>
+        <rect x={-width(policy) / 2 - 6} y={-17} width={width(policy) + 12} height={34} rx={2} />
+        <text textAnchor="middle" dominantBaseline="central">
+          {policy}
+        </text>
+      </g>
+      <g className="abac-decision" transform={`translate(${decisionAt.x} ${decisionAt.y})`}>
+        <rect x={-42} y={-15} width={84} height={30} rx={15} />
+        <text className="is-permit" textAnchor="middle" dominantBaseline="central">
+          {decisions[0]}
+        </text>
+        <text className="is-deny" textAnchor="middle" dominantBaseline="central">
+          {decisions[1]}
+        </text>
+      </g>
+      {enforce.map((name, i) => (
+        <g key={name} className="abac-node abac-enforce" transform={`translate(${enforceAt[i].x} ${enforceAt[i].y})`}>
+          <rect x={-width(name) / 2} y={-13} width={width(name)} height={26} rx={2} />
+          <text textAnchor="middle" dominantBaseline="central">
+            {name}
+          </text>
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+// Where each label floats over its particle scene, as % of the frame.
+const SCENE_LABEL_POS: Record<SceneShowcase['scene'], [number, number][]> = {
+  gateway: [
+    [44, 4],
+    [36, 84],
+    [98, 12],
+  ],
+  observe: [
+    [50, 2],
+    [10, 70],
+    [50, 94],
+  ],
+  talk: [
+    [84, 8],
+    [50, 64],
+    [50, 96],
+  ],
+}
+
+// The swarm positions itself over [data-scene-anchor] (see gl/scene.ts);
+// this frame only carries the caption and labels.
+function SceneFrame({ scene, labels }: SceneShowcase) {
+  const pos = SCENE_LABEL_POS[scene]
+  return (
+    <div className={`scene-stage scene-${scene}`} data-scene-anchor>
+      <span className="scene-corner" aria-hidden="true" />
+      <ul className="scene-labels">
+        {labels.map((label, i) => {
+          const [x, y] = pos[i] ?? [50, 50]
+          // Labels near an edge grow inward so they never leave the frame.
+          const shift = x < 30 ? '0%' : x > 70 ? '-100%' : '-50%'
+          return (
+            <li key={label} style={vars({ '--x': `${x}%`, '--y': `${y}%`, '--shift': shift, '--i': i })}>
+              {label}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+function renderShowcase(showcase: Showcase) {
+  switch (showcase.type) {
+    case 'pipeline':
+      return <Pipeline {...showcase} />
+    case 'compare':
+      return showcase.variant === 'timeline' ? <Timeline {...showcase} /> : <SplitDeploy {...showcase} />
+    case 'flows':
+      return <Flows {...showcase} />
+    case 'modules':
+      return <Modules {...showcase} />
+    case 'abac':
+      return <Abac {...showcase} />
+    case 'scene':
+      return <SceneFrame {...showcase} />
+  }
+}
+
+export function ShowcaseFigure({ showcase, index }: { showcase: Showcase; index: number }) {
+  const [ref, { seen, visible }] = useInView<HTMLElement>('0px')
+  return (
+    <figure ref={ref} className={`fig fig-${showcase.type}${liveClass(seen, visible)}`}>
+      <figcaption className="fig-caption">
+        <span>fig.{pad(index + 1)}</span>
+        {showcase.title}
+      </figcaption>
+      <div className="fig-body">{renderShowcase(showcase)}</div>
+      {showcase.type === 'pipeline' && <p className="fig-note">{showcase.description}</p>}
+      {showcase.type === 'scene' && (
+        <p className="fig-note fig-live" aria-hidden="true">
+          Live particle scene
+        </p>
+      )}
+    </figure>
+  )
+}
+
+/* ─── Project blueprints ─────────────────────────────────── */
+
+
+export function Blueprint({ project, index }: { project: Project; index: number }) {
+  const [ref, { seen, visible }] = useInView<HTMLDivElement>('0px')
+  const tiltable = useRef(hasFinePointer())
+  const byId = Object.fromEntries(project.nodes.map((n) => [n.id, n]))
+  const description = project.edges.map(([a, b]) => `${byId[a].label} to ${byId[b].label}`).join(', ')
+
+  const onMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!tiltable.current) return
+    const r = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - r.left) / r.width
+    const y = (e.clientY - r.top) / r.height
+    e.currentTarget.style.setProperty('--ry', `${(x - 0.5) * 10}deg`)
+    e.currentTarget.style.setProperty('--rx', `${(0.5 - y) * 8}deg`)
+    e.currentTarget.style.setProperty('--gx', `${x * 100}%`)
+    e.currentTarget.style.setProperty('--gy', `${y * 100}%`)
+  }
+  const onLeave = (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.currentTarget.style.setProperty('--ry', '0deg')
+    e.currentTarget.style.setProperty('--rx', '0deg')
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`bp${liveClass(seen, visible)}`}
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+      data-cursor="Trace"
+    >
+      <div className="bp-head" aria-hidden="true">
+        <span>fig.P{pad(index + 1)}</span>
+        <span>Architecture</span>
+        <span>
+          {project.nodes.length} nodes / {project.edges.length} links
+        </span>
+      </div>
+      <svg className="bp-svg" viewBox="0 0 400 320" role="img" aria-label={`${project.name} architecture: ${description}`}>
+        <defs>
+          <pattern id={`grid-${project.id}`} width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0H0V20" fill="none" className="bp-grid" />
+          </pattern>
+        </defs>
+        <rect width="400" height="320" fill={`url(#grid-${project.id})`} />
+        {project.edges.map(([a, b], i) => {
+          const A = byId[a]
+          const B = byId[b]
+          return (
+            <g key={`${a}-${b}`} className="bp-edge" style={vars({ '--i': i })}>
+              <line x1={A.x} y1={A.y} x2={B.x} y2={B.y} className="bp-line" pathLength={1} />
+              <line x1={A.x} y1={A.y} x2={B.x} y2={B.y} className="bp-flow" />
+              <circle
+                cx={A.x}
+                cy={A.y}
+                r="3.2"
+                className="bp-packet"
+                style={vars({ '--dx': `${B.x - A.x}px`, '--dy': `${B.y - A.y}px`, '--i': i })}
+              />
+            </g>
+          )
+        })}
+        {project.nodes.map((n, i) => {
+          const w = n.label.length * CHAR_W + 22
+          return (
+            <g key={n.id} className="bp-node" transform={`translate(${n.x} ${n.y})`}>
+              <g style={vars({ '--i': i })}>
+                <rect x={-w / 2} y={-13} width={w} height={26} rx={2} />
+                <text textAnchor="middle" dominantBaseline="central">
+                  {n.label}
+                </text>
+              </g>
+            </g>
+          )
+        })}
+      </svg>
+      <span className="bp-glare" aria-hidden="true" />
+    </div>
+  )
+}

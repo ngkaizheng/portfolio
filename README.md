@@ -1,43 +1,98 @@
 # Ng Kai Zheng — Portfolio
 
-Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at [ngkaizheng.github.io/portfolio](https://ngkaizheng.github.io/portfolio/).
+Experimental, WebGL-driven portfolio built with React + TypeScript + Vite. Deployed to GitHub Pages at [ngkaizheng.github.io/portfolio](https://ngkaizheng.github.io/portfolio/).
+
+## Concept
+
+One full-screen particle system (custom GLSL, ~22k points) sits behind the whole page and morphs as you scroll, each shape tied to the section on screen:
+
+| Section | Swarm shape | Meaning |
+|---|---|---|
+| Hero | Breathing sphere | The core |
+| Experience | Hub + 5 agents linked by streams, packets running along the links | Multi-agent orchestration |
+| ↳ API Gateway case | Traffic funnels through a TLS ring; a token bucket lets a burst through, then the refill rate; three routes out | Routing, token-bucket rate limiting, TLS termination |
+| ↳ Observability case | Radar scope with sweep, log streams flowing into the centre, heartbeat trace | Application Insights: centralized logging, health |
+| ↳ Tech & Business Analysis case | Two people at a table, a shared ERD between them, conversation arc | Domain boundaries with the Customer Data Hub team |
+| Projects | Three stacked tiers with pillar connectors | Layered architecture |
+| Stack | Rotating spiral galaxy | Everything in the toolbox |
+| Contact | The word HELLO | Say hi |
+
+The pointer pushes particles away, scroll speed adds RGB split (post-processing), and every case study has its own animated diagram. Each experience panel names its swarm shape with `data-scene`; the three case-specific scenes are pinned to the panel's `[data-scene-anchor]` frame (see `src/components/gl/scene.ts`).
 
 ## Content Source
 
-- Portfolio copy is based on the resume provided in this repository.
-- Canonical public resume path: `/portfolio/resume/NgKaiZheng_Resume.pdf` (built as `${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf`, defined in `src/App.tsx`)
+- Every fact on the site lives in `src/data/content.ts`. It comes from the resume or from the owner (the resume is trimmed to one page, so some details and examples only appear on the site). Do not invent claims.
+- Canonical public resume path: `/portfolio/resume/NgKaiZheng_Resume.pdf` (built as `${import.meta.env.BASE_URL}resume/NgKaiZheng_Resume.pdf`, defined in `src/data/content.ts`)
 - Public resume file location: `public/resume/NgKaiZheng_Resume.pdf`
+
+To refresh the resume: replace the PDF at the same path, then update `src/data/content.ts` to match it.
+
+## Structure
+
+```
+src/
+  data/content.ts          all copy, metrics, projects, skills (resume-derived)
+  lib/
+    visits.ts              visitor counter (Abacus)
+    theme.ts               light/dark theme hook
+    terminal.ts            open-terminal event
+    scroll.ts              Lenis smooth scroll + GSAP ScrollTrigger + shared scroll state
+    pointer.ts             window-level pointer state for the WebGL layer
+    env.ts                 reduced-motion / pointer / WebGL / low-power probes
+    hooks.ts               in-view, reveal, local time, magnetic buttons
+  pages/                   /now and /uses entries (InfoPage)
+  showcase/                /showcase/ — standalone 3D black-hole page
+  play/                    Vite entry (play/index.html): arcade (kit.ts + ui.tsx shared, one file per game)
+  components/
+    gl/                    World (Canvas), Swarm (points + shader), shapes, shaders, Effects
+    Preloader, Cursor, Nav, Hero, Experience (pinned horizontal track),
+    Diagrams (architecture animations + project blueprints), Sections, ui
+```
 
 ## Sections
 
-- **Hero** — Identity, tagline, animated stats (productivity, delivery, auditability, CGPA)
-- **Experience** — Deep-dive cards at Etiqa (problem/solution/result narrative for AI orchestration, workflow engine, MFE migration, ABAC, AI recruitment) + AIO Synergy internship
-- **Projects** — Expandable cards with architecture diagrams (Pet Appointment, RAG Chat, Blockchain Multiplayer)
-- **Skills** — Categorized tags (Languages, Backend, Frontend, AI, Architecture, Cloud)
-- **Education** — UTM Bachelor of Computer Science, CGPA 4.0, Dean's List
-- **Contact** — Email, phone, location, GitHub, resume download
+- **Hero** — Liquid-weight name (letters thin out near the pointer), scrambling role, animated stats, resume CTA
+- **Experience** — Pinned horizontal scroll through 10 Etiqa case files (problem / solution / result) + AIO Synergy internship. Each case has an animated diagram: agent pipeline, delivery timeline, delivered modules, routing patterns, monolith vs micro-frontends, screening pipeline, ABAC permit/deny flow — or a live particle scene (API gateway, observability, domain analysis)
+- **Projects** — Pet Appointment, RAG Chat, Blockchain Multiplayer Game, each with an animated blueprint (packets flow along the architecture links, 3D tilt on hover)
+- **Stack** — Category index rows with a hover wipe
+- **Education** — UTM, CGPA 4.0 fill, Dean's List across all 8 semesters
+- **Contact** — Email (copy button), phone, location, GitHub, LinkedIn, resume download
+- **Arcade** (`/portfolio/play/`, linked from the footer) — three mini games picked with tabs (`#rate-limited`, `#stack`, `#bug-bash`):
+  - *Rate Limited* — you are the API gateway: catch requests, dodge DDoS packets, grab TLS certs for a shield
+  - *Stack the Layers* — one-tap tower stacker; each block is an architecture layer, overhang is cut off, perfect drops widen it again
+  - *Bug Bash* — whack-a-mole over a grid of source files: squash bugs before they ship, leave features alone
+  Best scores stay in `localStorage`; the page also shows visitors today / all-time
 
-## Design Notes
+- **/now** and **/uses** (`now/index.html`, `uses/index.html`) — short info pages; copy in `nowPage` / `usesPage` in `content.ts`. Items marked `todo` are owner placeholders: visible (flagged) in `npm run dev`, left out of production builds
+- **/showcase** (`showcase/index.html`) — standalone "Event Horizon" page: a ray-marched black hole (gravitational lensing, accretion disk, bloom) that the camera falls into as you scroll, with particle section titles, project detail dialogs and an optional synthesised drone. Copy comes from `content.ts` via `src/showcase/content.ts`. Without WebGL it renders as a plain page
 
-- Content-first, single-column layout
-- Dark background (#0f1115) with high-contrast text
-- Grid dot background in hero for subtle visual texture
-- Animated counter stats on hero
-- Reveal-on-scroll via IntersectionObserver
-- Expandable deep-dive cards with Problem → Solution → Result narrative
-- SVG architecture diagrams for each project
-- No external animation libraries (no Framer Motion)
+## Extras
+
+- **Terminal easter egg** — press `~` (or `` ` ``) anywhere on the portfolio, or click "~ terminal" in the footer. Commands: `help`, `whoami`, `ls`, `ls cases`, `stats`, `skills`, `education`, `contact`, `cat resume`, `play`, `now`, `uses`, `sudo hire-me`, `clear`, `exit`; ↑/↓ history, Tab completion, Esc closes. Every answer reads from `content.ts` (`src/components/Terminal.tsx`)
+- **Light / dark theme** — toggle in the nav (and on the sub-pages). Defaults to the OS preference, remembers an explicit choice in `localStorage` (`nkz-theme`); an inline script in each HTML entry applies it before first paint. Colours are tokens in `src/index.css`; the light theme inverts the WebGL layer with a CSS filter instead of re-shading the particles. Game screens and the terminal stay dark in both themes
+
+## Visitor Counter
+
+GitHub Pages has no backend, so visits are counted with [Abacus](https://abacus.jasoncameron.dev) (free hit counter, open CORS, no account). `src/lib/visits.ts` hits two keys in the `ngkaizheng-portfolio` namespace once per browser session: `total` and `day-YYYYMMDD` (GMT+8). Any page load counts (portfolio or game); the portfolio footer and the game page both display the numbers (one shared request per page). No cookies or personal data; if the service is down the page shows "Visitor counter offline" and nothing else is affected. Tests never call it.
+
+## Accessibility & Fallbacks
+
+- `prefers-reduced-motion`: no smooth scroll, no horizontal pin (cases stack vertically), CSS animations off, swarm barely drifts
+- No WebGL (or a WebGL error): animated CSS gradient fallback; content is unaffected
+- Small or low-core devices: fewer particles, capped DPR, no post-processing
+- Custom cursor only for fine pointers; every section is real HTML with headings, so screen readers and search engines read the same content
 
 ## Scripts
 
 - `npm run dev`: start local dev server
 - `npm run test`: run Vitest tests
-- `npm run build`: create production build
+- `npm run lint`: run ESLint
+- `npm run build`: type-check and create production build
 - `npm run preview`: preview production build locally
 
 ## GitHub Pages
 
-- Deployment workflow: `.github/workflows/pages.yml` (builds `dist/`, deploys via `actions/deploy-pages`)
+- Deployment workflow: `.github/workflows/pages.yml` (builds `dist/` on push to `main`, deploys via `actions/deploy-pages`)
 - Live URL: `https://ngkaizheng.github.io/portfolio/` (project page, **not** a custom domain)
 - `vite.config.ts` sets `base: '/portfolio/'` so built asset URLs resolve under the repo subpath. Changing the hosting path means changing that one value; the resume link follows it automatically via `import.meta.env.BASE_URL`.
 - No `public/CNAME` file exists on purpose: a CNAME would re-bind the Pages site to a custom domain and redirect the `github.io/portfolio/` URL away.
@@ -45,4 +100,7 @@ Portfolio site built with React + TypeScript + Vite. Deployed to GitHub Pages at
 
 ## Tech Stack
 
-- React 19, TypeScript 6, Vite 8
+- React 19, TypeScript 6, Vite 6
+- three.js + React Three Fiber, custom GLSL shaders, `@react-three/postprocessing` (bloom, chromatic aberration, vignette)
+- GSAP + ScrollTrigger, Lenis
+- Self-hosted fonts via Fontsource: Syne, Inter, JetBrains Mono

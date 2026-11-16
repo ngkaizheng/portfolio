@@ -15,11 +15,17 @@ function sampleWord(word: string) {
   canvas.height = 200
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
   if (!ctx) return out
-  ctx.font = '800 150px Archivo, Arial, sans-serif'
+  // Shrink the type until the word fits with margin (Syne is a wide face).
+  let size = 150
+  ctx.font = `800 ${size}px 'Syne Variable', Arial, sans-serif`
+  while (size > 40 && ctx.measureText(word.toUpperCase()).width > 940) {
+    size -= 6
+    ctx.font = `800 ${size}px 'Syne Variable', Arial, sans-serif`
+  }
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillStyle = '#fff'
-  ctx.fillText(word.toUpperCase(), 512, 104, 1000)
+  ctx.fillText(word.toUpperCase(), 512, 104)
   const { data } = ctx.getImageData(0, 0, 1024, 200)
   const filled: number[] = []
   for (let y = 0; y < 200; y += 2) {

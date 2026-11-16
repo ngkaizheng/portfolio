@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { PerformanceMonitor } from '@react-three/drei'
 import { Bloom, ChromaticAberration, EffectComposer, Noise, ToneMapping, Vignette } from '@react-three/postprocessing'
 import { ToneMappingMode } from 'postprocessing'
 import { HalfFloatType, ShaderMaterial, Vector2, Vector3 } from 'three'
@@ -74,6 +73,28 @@ function BlackHole({ lowPower }: { lowPower: boolean }) {
   )
 }
 
+// Lowers render resolution while the average frame stays slower than ~45 fps.
+function AdaptiveResolution({ onDecline }: { onDecline: () => void }) {
+  const acc = useRef({ time: 0, frames: 0, cooldown: 1 })
+  useFrame((_, delta) => {
+    const a = acc.current
+    if (a.cooldown > 0) {
+      a.cooldown -= delta
+      return
+    }
+    a.time += delta
+    a.frames += 1
+    if (a.time < 1) return
+    if (a.frames / a.time < 45) {
+      onDecline()
+      a.cooldown = 1
+    }
+    a.time = 0
+    a.frames = 0
+  })
+  return null
+}
+
 export default function Scene({ lowPower, onReady }: { lowPower: boolean; onReady: () => void }) {
   // Start sharp, then drop resolution if the device cannot hold frame rate.
   const [dpr, setDpr] = useState(() => Math.min(window.devicePixelRatio, lowPower ? 1 : 1.5))
@@ -85,7 +106,7 @@ export default function Scene({ lowPower, onReady }: { lowPower: boolean; onRead
       onCreated={onReady}
       gl={{ antialias: false, powerPreference: 'high-performance' }}
     >
-      <PerformanceMonitor onDecline={() => setDpr((d) => Math.max(0.5, d * 0.7))} />
+      <AdaptiveResolution onDecline={() => setDpr((d) => Math.max(0.5, d * 0.7))} />
       <BlackHole lowPower={lowPower} />
       <Particles />
       <EffectComposer multisampling={0} frameBufferType={HalfFloatType}>

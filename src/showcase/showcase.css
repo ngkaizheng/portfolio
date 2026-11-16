@@ -8,7 +8,7 @@ body {
   margin: 0;
   background: #000;
   color: #fff;
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: 'Inter Variable', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 a {
@@ -136,7 +136,7 @@ a {
 }
 .sc-dialog h2 {
   margin: 0 0 10px;
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Syne Variable', sans-serif;
   font-size: clamp(24px, 3.4vw, 36px);
 }
 .sc-dialog p {
@@ -212,14 +212,18 @@ a {
 .sc-right {
   right: clamp(20px, 5vw, 64px);
 }
+.sc-intro {
+  width: min(760px, calc(100vw - 40px));
+  overflow: visible;
+}
 .sc-intro::before {
   display: none;
 }
 .sc-intro h1 {
   margin: 0;
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Syne Variable', sans-serif;
   font-weight: 800;
-  font-size: clamp(56px, 9vw, 128px);
+  font-size: clamp(44px, 6.6vw, 96px);
   line-height: 0.92;
   letter-spacing: -0.03em;
   text-transform: uppercase;
@@ -255,7 +259,7 @@ a {
 }
 .sc-act h2 {
   margin: 0 0 6px;
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Syne Variable', sans-serif;
   font-size: clamp(20px, 2.2vw, 28px);
   font-weight: 700;
   line-height: 1.15;
@@ -310,7 +314,7 @@ a {
   outline: none;
 }
 .sc-project strong {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Syne Variable', sans-serif;
   font-size: clamp(18px, 2vw, 24px);
 }
 .sc-summary {
@@ -349,7 +353,7 @@ a {
   font-size: 18px;
 }
 .sc-cgpa {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Syne Variable', sans-serif;
   font-size: 64px;
   font-weight: 800;
   line-height: 1;
