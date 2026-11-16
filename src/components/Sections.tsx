@@ -257,7 +257,8 @@ export function Contact() {
       <footer className="footer">
         <span>
           &copy; {new Date().getFullYear()} {profile.name} &middot; <a href={`${import.meta.env.BASE_URL}now/`}>/now</a>{' '}
-          &middot; <a href={`${import.meta.env.BASE_URL}uses/`}>/uses</a>
+          &middot; <a href={`${import.meta.env.BASE_URL}uses/`}>/uses</a>{' '}
+          &middot; <a href={`${import.meta.env.BASE_URL}showcase/`}>/showcase</a>
         </span>
         <span>
           Custom GLSL &middot; R3F &middot; GSAP &middot;{' '}

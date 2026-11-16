@@ -41,6 +41,7 @@ src/
     env.ts                 reduced-motion / pointer / WebGL / low-power probes
     hooks.ts               in-view, reveal, local time, magnetic buttons
   pages/                   /now and /uses entries (InfoPage)
+  showcase/                /showcase/ — standalone 3D black-hole page
   play/                    Vite entry (play/index.html): arcade (kit.ts + ui.tsx shared, one file per game)
   components/
     gl/                    World (Canvas), Swarm (points + shader), shapes, shaders, Effects
@@ -63,6 +64,7 @@ src/
   Best scores stay in `localStorage`; the page also shows visitors today / all-time
 
 - **/now** and **/uses** (`now/index.html`, `uses/index.html`) — short info pages; copy in `nowPage` / `usesPage` in `content.ts`. Items marked `todo` are owner placeholders: visible (flagged) in `npm run dev`, left out of production builds
+- **/showcase** (`showcase/index.html`) — standalone "Event Horizon" page: a ray-marched black hole (gravitational lensing, accretion disk, bloom) that the camera falls into as you scroll, with particle section titles, project detail dialogs and an optional synthesised drone. Copy comes from `content.ts` via `src/showcase/content.ts`. Without WebGL it renders as a plain page
 
 ## Extras
 

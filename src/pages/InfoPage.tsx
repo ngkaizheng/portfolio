@@ -6,6 +6,7 @@ const LINKS = [
   { href: `${base}now/`, label: 'Now' },
   { href: `${base}uses/`, label: 'Uses' },
   { href: `${base}play/`, label: 'Arcade' },
+  { href: `${base}showcase/`, label: 'Showcase' },
 ]
 
 export default function InfoPage({ page }: { page: InfoPageContent }) {
