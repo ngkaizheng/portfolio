@@ -31,6 +31,16 @@ export default function Showcase() {
   const drone = useRef<Drone | null>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const [ready, setReady] = useState(false)
+  // Particle titles are sampled from the web font, so mount the scene once it has loaded.
+  const [fontsReady, setFontsReady] = useState(false)
+  useEffect(() => {
+    let alive = true
+    const done = () => alive && setFontsReady(true)
+    document.fonts.load("800 150px 'Syne Variable'").then(done, done)
+    return () => {
+      alive = false
+    }
+  }, [])
   const [sound, setSound] = useState(false)
   const [openProject, setOpenProject] = useState<number | null>(null)
   const project = openProject === null ? null : projects[openProject]
@@ -105,7 +115,7 @@ export default function Showcase() {
 
   return (
     <div ref={root} className={webgl ? 'sc' : 'sc sc-static'}>
-      {webgl && (
+      {webgl && fontsReady && (
         <Suspense fallback={null}>
           <Scene lowPower={lowPower} onReady={() => setReady(true)} />
         </Suspense>
@@ -148,14 +158,16 @@ export default function Showcase() {
               <p className="sc-meta">
                 {job.role} · {job.period}
               </p>
-              <ul>
-                {job.highlights.map(([title, sub]) => (
-                  <li key={title}>
-                    <strong>{title}</strong>
-                    <span>{sub}</span>
-                  </li>
-                ))}
-              </ul>
+              {job.highlights.length > 0 && (
+                <ul>
+                  {job.highlights.map(([title, sub]) => (
+                    <li key={title}>
+                      <strong>{title}</strong>
+                      <span>{sub}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </section>

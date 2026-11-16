@@ -1,17 +1,15 @@
 import '@testing-library/jest-dom/vitest'
+import { cleanup } from '@testing-library/react'
+import { afterEach } from 'vitest'
+
+// Vitest runs without globals, so Testing Library cannot register this itself.
+afterEach(cleanup)
 
 class MockIntersectionObserver implements IntersectionObserver {
 	readonly root: Element | Document | null = null
 	readonly rootMargin: string = '0px'
 	readonly scrollMargin: string = '0px'
 	readonly thresholds: ReadonlyArray<number> = [0]
-
-	constructor(
-		_callback: IntersectionObserverCallback,
-		_options?: IntersectionObserverInit,
-	) {
-		// No-op for test environment.
-	}
 
 	disconnect(): void {
 		// No-op for test environment.
@@ -31,3 +29,17 @@ class MockIntersectionObserver implements IntersectionObserver {
 }
 
 globalThis.IntersectionObserver = MockIntersectionObserver
+
+// jsdom has no matchMedia; GSAP's ScrollTrigger registers media listeners on load.
+if (typeof window.matchMedia !== 'function') {
+	window.matchMedia = (query: string): MediaQueryList => ({
+		matches: false,
+		media: query,
+		onchange: null,
+		addListener: () => {},
+		removeListener: () => {},
+		addEventListener: () => {},
+		removeEventListener: () => {},
+		dispatchEvent: () => false,
+	})
+}
