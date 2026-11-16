@@ -27,9 +27,9 @@ export const profile = {
 }
 
 export const heroStats = [
-  { value: 60, suffix: '%', decimals: 0, label: 'Team productivity boost' },
-  { value: 50, suffix: '%', decimals: 0, label: 'Shorter lead time' },
   { value: 7, suffix: 'K+', decimals: 0, label: 'Internal users' },
+  { value: 2, suffix: 'mo', decimals: 0, label: 'To ship HRMS v1' },
+  { value: 50, suffix: '%', decimals: 0, label: 'Shorter lead time' },
   { value: 4, suffix: '', decimals: 1, label: 'CGPA at UTM' },
 ]
 
@@ -118,10 +118,10 @@ export const caseStudies: CaseStudy[] = [
       'The team needed to handle complex, multi-step tasks with AI, but context window constraints made single-agent approaches unreliable for large codebases.',
     solution:
       'Engineered a multi-agent system following an Analysis → Plan → Implement → Review pipeline. Each agent has a specialized role with constrained context, passing structured outputs between stages.',
-    result: '60% boost in team productivity across development workflows.',
+    result: 'Complex, multi-step tasks stay within each agent\'s context window across development workflows.',
     tech: ['TypeScript', 'AI Orchestration', 'Prompt Engineering'],
-    metric: '60%',
-    metricLabel: 'productivity',
+    metric: '4',
+    metricLabel: 'specialized agents',
     showcase: {
       type: 'pipeline',
       title: 'Agent Pipeline Architecture',
@@ -258,19 +258,19 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 'auth',
     title: 'Granular Authorization',
-    subtitle: 'Attribute-Based Access Control',
-    problem: 'Role-based checks were too coarse for fine-grained user permissions.',
+    subtitle: 'RBAC with policy-based authorization',
+    problem: 'Role checks alone were too coarse: access also depends on who owns the resource.',
     solution:
-      'Implemented a comprehensive Attribute-Based Access Control (ABAC) system across React and .NET for fine-grained user permission management.',
-    result: 'One attribute-based permission model, enforced in both the React UI and the .NET API.',
-    tech: ['.NET', 'React', 'ABAC', 'JWT'],
-    metric: 'ABAC',
-    metricLabel: 'security model',
+      'Implemented RBAC with policy-based authorization and resource-level ownership checks in .NET. The API returns capability DTOs, so the React UI shows only what the user is allowed to do.',
+    result: 'One permission model, decided in the .NET API and reflected in the React UI.',
+    tech: ['.NET', 'React', 'RBAC', 'Policy-based Authorization', 'JWT'],
+    metric: 'RBAC',
+    metricLabel: '+ policy-based authorization',
     showcase: {
       type: 'abac',
-      title: 'Attribute-Based Decisions',
-      inputs: ['User attributes', 'Resource attributes', 'Action', 'Context'],
-      policy: 'ABAC policy',
+      title: 'Policy-Based Decisions',
+      inputs: ['User role', 'Action', 'Resource', 'Resource owner'],
+      policy: 'Auth policy',
       decisions: ['Permit', 'Deny'],
       enforce: ['React UI', '.NET API'],
     },
@@ -448,7 +448,7 @@ export const skillCategories: { name: string; skills: string[] }[] = [
   { name: 'Backend', skills: ['.NET (Core/8+)', 'EF Core', 'MediatR (CQRS)', 'Dapper', 'REST APIs', 'Microservices', 'Quartz.NET'] },
   { name: 'Frontend', skills: ['React', 'Micro-frontends (MFE)', 'Module Federation', 'Tailwind CSS', 'Redux'] },
   { name: 'AI & Automation', skills: ['AI Agent Orchestration', 'Prompt Engineering', 'RAG', 'Multi-Agent Workflows'] },
-  { name: 'Architecture & Security', skills: ['Clean Architecture', 'DDD', 'Result Pattern', 'ABAC', 'RBAC', 'JWT', 'OAuth 2.0'] },
+  { name: 'Architecture & Security', skills: ['Clean Architecture', 'DDD', 'Result Pattern', 'RBAC', 'Policy-based Authorization', 'JWT', 'OAuth 2.0'] },
   {
     name: 'Cloud & DevOps',
     skills: [

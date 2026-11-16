@@ -193,8 +193,8 @@ function Modules({ modules, team, timeline }: ModulesShowcase) {
   )
 }
 
-// ABAC: attributes flow into the policy, the decision alternates between
-// permit and deny (the context attribute mismatches on the deny cycle),
+// Authorization: inputs flow into the policy, the decision alternates between
+// permit and deny (the last input, the resource owner, mismatches on the deny cycle),
 // and the decision is enforced in both the UI and the API.
 function Abac({ inputs, policy, decisions, enforce }: AbacShowcase) {
   const policyAt = { x: 214, y: 125 }
