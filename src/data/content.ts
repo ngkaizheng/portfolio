@@ -28,7 +28,7 @@ export const profile = {
 
 export const heroStats = [
   { value: 7, suffix: 'K+', decimals: 0, label: 'Internal users' },
-  { value: 2, suffix: 'mo', decimals: 0, label: 'To ship HRMS v1' },
+  { value: 2, suffix: '', decimals: 0, label: 'Months to HRMS v1' },
   { value: 50, suffix: '%', decimals: 0, label: 'Shorter lead time' },
   { value: 4, suffix: '', decimals: 1, label: 'CGPA at UTM' },
 ]
